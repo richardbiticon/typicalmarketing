@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Typical — Marketing Dashboard</title>
+<title>Typical — Marketing Plan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -133,6 +133,27 @@
   .ph1{color:var(--blue);border-color:rgba(47,94,140,.4)!important}
   .ph2{color:var(--green);border-color:rgba(79,122,63,.4)!important}
   table.weeks .tgt{color:var(--orange-deep);font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* timeline bar */
+  .tl{border:1px solid var(--ink);margin-bottom:22px;overflow-x:auto}
+  .tl-inner{min-width:760px}
+  .tl-bands{display:flex;border-bottom:1px solid var(--ink)}
+  .tl-band{padding:9px 14px;font-family:var(--grotesk);font-weight:700;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;border-right:1px solid rgba(255,255,255,.25);color:#fff}
+  .tl-band:last-child{border-right:none}
+  .tl-band.tlp0{background:var(--orange-deep)}
+  .tl-band.tlp1{background:var(--blue)}
+  .tl-band.tlp2{background:var(--green)}
+  .tl-weeks{display:flex}
+  .tl-wk{flex:1;min-width:56px;padding:12px 10px 14px;border-right:1px solid var(--line);background:var(--panel);position:relative;transition:background .15s}
+  .tl-wk:last-child{border-right:none}
+  .tl-wk:hover{background:rgba(240,83,30,.06)}
+  .tl-wk:before{content:"";position:absolute;left:0;top:0;height:3px;width:100%}
+  .tl-wk.tlp0:before{background:var(--orange)}
+  .tl-wk.tlp1:before{background:var(--blue)}
+  .tl-wk.tlp2:before{background:var(--green)}
+  .tl-wk .twk{font-family:var(--grotesk);font-weight:700;font-size:.74rem;color:var(--ink)}
+  .tl-wk .tdt{font-family:var(--grotesk);font-size:.6rem;color:var(--muted);margin:3px 0 8px;white-space:nowrap}
+  .tl-wk .tfocus{font-family:var(--grotesk);font-size:.68rem;color:#3a3833;line-height:1.45}
 
   /* CRO */
   .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
@@ -275,19 +296,17 @@
   <div class="top-in">
     <span class="wm">Typical</span>
     <nav class="docnav">
-      <a href="Typical_Approach.html">The approach</a>
-      <a href="Typical_Dashboard.html" class="current">Dashboard</a>
-      <a href="Typical_Short_Version.html">Short version</a>
+      <a href="index.html" class="current">Plan</a>
     </nav>
   </div>
   <nav class="tabs" id="tabs">
     <button class="active" data-v="overview"><span class="n">01</span>Overview</button>
-    <button data-v="plan"><span class="n">02</span>30·60·90</button>
+    <button data-v="plan"><span class="n">02</span>Timeline</button>
     <button data-v="funnel"><span class="n">03</span>Full funnel</button>
     <button data-v="cro"><span class="n">04</span>CRO &amp; creative</button>
     <button data-v="budget"><span class="n">05</span>Budget &amp; pacing</button>
     <button data-v="reporting"><span class="n">06</span>Reporting &amp; n8n</button>
-    <button data-v="project"><span class="n">07</span>Project plan</button>
+    <button data-v="project"><span class="n">07</span>Projects &amp; Tasks</button>
     <button data-v="extras"><span class="n">08</span>Extras</button>
   </nav>
 </header>
@@ -297,9 +316,8 @@
 <!-- ============ OVERVIEW ============ -->
 <section class="view active" id="v-overview">
   <div class="vh">
-    <span class="illus">Sample draft · mostly strategy, some execution · figures illustrative</span>
     <h1>How I'd structure Meta, Google, and Amazon for Typical.</h1>
-    <p>This is a working draft of where I'd take performance and growth, and the thinking behind it. Most of what follows is strategy and the orchestration of it; the hands-on execution would run with the right specialists and the creative team, with me owning the plan, the budget, and the outcomes. Start everything here from Wednesday, 3 June 2026.</p>
+    <p>This is a working draft of where I'd take performance and growth, and the thinking behind it.</p>
   </div>
 
   <h2 class="block">What I'm seeing</h2>
@@ -315,9 +333,9 @@
   <h2 class="block">The biggest rocks — tap to expand</h2>
   <div class="rocks" id="rocks"></div>
 
-  <h2 class="block">The numbers I'd hold it to</h2>
+  <h2 class="block">A sample of what 'good' metrics can look like</h2>
   <div class="kpis" id="kpis">
-    <div class="kpi"><div class="v" data-to="2.8" data-suf="x">0</div><div class="l">Blended ROAS</div><div class="t">target <b>3.4x</b></div></div>
+    <div class="kpi"><div class="v" data-to="3.6" data-suf="x">0</div><div class="l">Blended ROAS</div><div class="t">target <b>4.2x</b></div></div>
     <div class="kpi"><div class="v" data-pre="$" data-to="42">0</div><div class="l">Blended CAC</div><div class="t">target <b>$34</b></div></div>
     <div class="kpi"><div class="v" data-to="38" data-suf="%">0</div><div class="l">Contribution margin</div><div class="t">per order, target <b>44%</b></div></div>
     <div class="kpi"><div class="v" data-to="1.2" data-suf=" ord">0</div><div class="l">CAC payback</div><div class="t">orders to recover</div></div>
@@ -329,9 +347,10 @@
 <!-- ============ 30-60-90 ============ -->
 <section class="view" id="v-plan">
   <div class="vh">
-    <h1>The 30·60·90, broken down week by week.</h1>
-    <p>A scaling model, not a to-do list. The shape is deliberate: spend the first month getting the numbers honest, the second building the systems there's currently no playbook for, and the third putting money behind what works and writing it down so the next launch can run on it. Select a phase to filter the weeks. Targets are illustrative placeholders.</p>
+    <h1>The timeline — every week from June 3.</h1>
+    <p>If we start Wednesday, 3 June 2026, here's how the first quarter sequences and what each week is accountable for. The bar shows the three phases at a glance; the table below carries the weekly targets. Select a phase to filter. Targets are illustrative placeholders.</p>
   </div>
+  <div id="ganttWrap"></div>
   <div class="phasebar" id="phasebar">
     <div class="pbtn active" data-p="all"><div class="d">Full quarter</div><div class="h">All 13 weeks</div><div class="f">3 Jun – 31 Aug 2026</div></div>
     <div class="pbtn" data-p="0"><div class="d">Days 0–30</div><div class="h">Diagnose</div><div class="f">Listen, audit, fix leaks</div></div>
@@ -511,8 +530,8 @@
 <!-- ============ PROJECT PLAN ============ -->
 <section class="view" id="v-project">
   <div class="vh">
-    <h1>The project plan, week one onward.</h1>
-    <p>How the first weeks actually run, starting Wednesday 3 June 2026. Tasks are grouped by workstream so it's clear what moves in parallel, and each week names the feedback loop that keeps it honest. Tap a week to open it. The later weeks compress as the work shifts from setup to running the engine.</p>
+    <h1>Projects &amp; tasks for the team.</h1>
+    <p>The projects and tasks I'd set up for the team, week by week from Wednesday 3 June 2026. Grouped by workstream so it's clear what runs in parallel, and each week names the feedback loop that keeps it honest. Tap a week to open it. The later weeks compress as the work shifts from setup to running the engine.</p>
   </div>
   <div id="projectList"></div>
 </section>
@@ -568,7 +587,7 @@
 </main>
 
 <footer>
-  <span>Typical · marketing dashboard · sample draft for the founders · prepared 3 Jun 2026</span>
+  <span>Typical · marketing plan · sample draft for the founders · prepared 3 Jun 2026</span>
   <span>Numbers illustrative until week one</span>
 </footer>
 
@@ -729,6 +748,15 @@ function renderWeeks(filter){
   }).join('');
 }
 renderWeeks('all');
+/* timeline bar */
+function renderGantt(){
+  const bands=[{n:'Diagnose · Days 0–30',ph:0},{n:'Build · Days 31–60',ph:1},{n:'Scale · Days 61–90',ph:2}];
+  const counts=[0,0,0];weeks.forEach(w=>counts[w.ph]++);
+  const bandsHtml=bands.map(b=>`<div class="tl-band tlp${b.ph}" style="flex:${counts[b.ph]}">${b.n}</div>`).join('');
+  const wkHtml=weeks.map(w=>`<div class="tl-wk tlp${w.ph}"><div class="twk">${w.w.replace('Week ','W')}</div><div class="tdt">${w.dt}</div><div class="tfocus">${w.focus}</div></div>`).join('');
+  document.getElementById('ganttWrap').innerHTML=`<div class="tl"><div class="tl-inner"><div class="tl-bands">${bandsHtml}</div><div class="tl-weeks">${wkHtml}</div></div></div>`;
+}
+renderGantt();
 document.querySelectorAll('#phasebar .pbtn').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('#phasebar .pbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderWeeks(b.dataset.p);
 }));
