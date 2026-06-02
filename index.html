@@ -132,6 +132,7 @@
   .ph0{color:var(--orange-deep);border-color:rgba(240,83,30,.4)!important}
   .ph1{color:var(--blue);border-color:rgba(47,94,140,.4)!important}
   .ph2{color:var(--green);border-color:rgba(79,122,63,.4)!important}
+  .ph3{color:#8A6D2B;border-color:rgba(181,135,42,.45)!important}
   table.weeks .tgt{color:var(--orange-deep);font-weight:600;font-variant-numeric:tabular-nums}
 
   /* timeline bar */
@@ -151,6 +152,30 @@
   .tl-wk.tlp0:before{background:var(--orange)}
   .tl-wk.tlp1:before{background:var(--blue)}
   .tl-wk.tlp2:before{background:var(--green)}
+  .tl-wk.tlp3:before{background:#B5872A}
+  .tl-wk.tlp3{background:rgba(181,135,42,.06)}
+  .tl-band.tlm0{background:var(--ink)}
+  .tl-band.tlm1{background:#2a2823}
+  .tl-band.tlm2{background:var(--ink)}
+  /* email ecosystem */
+  .eco{border:1px solid var(--ink);background:var(--panel);margin:2px 0 8px;overflow-x:auto}
+  .eco-inner{min-width:880px;display:flex;align-items:stretch}
+  .eco-col{flex:1;padding:16px 13px;display:flex;flex-direction:column;gap:9px}
+  .eco-arrow{display:flex;align-items:center;color:var(--orange);font-weight:700;font-size:1.1rem}
+  .eco-h{font-family:var(--grotesk);font-size:.54rem;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+  .eco-node{border:1px solid var(--line);background:var(--paper);padding:9px 11px;font-family:var(--grotesk);font-size:.76rem;font-weight:600;line-height:1.2}
+  .eco-node .s{display:block;font-weight:500;font-size:.63rem;color:var(--muted);margin-top:3px;line-height:1.35}
+  .eco-node.tr{border-left:3px solid var(--blue)}
+  .eco-node.cap{border-left:3px solid var(--ink)}
+  .eco-node.cmp{border-left:3px solid var(--orange)}
+  .eco-node.flw{border-left:3px solid var(--green)}
+  .eco-node.out{border-left:3px solid #B5872A}
+  .eco-list{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:11px;text-align:center;font-family:var(--grotesk);font-weight:700;font-size:.8rem}
+  .eco-list .s{display:block;font-weight:500;font-size:.62rem;color:#cfcabf;margin-top:4px;line-height:1.35}
+  .eco-lane{font-family:var(--grotesk);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin:3px 0 1px}
+  .eco-lane.cmp{color:var(--orange-deep)}.eco-lane.flw{color:var(--green)}
+  .eco-loop{font-family:var(--grotesk);font-size:.78rem;color:#3a3833;line-height:1.6;margin-top:10px;border-top:1px dotted var(--line);padding-top:10px}
+  .eco-loop b{color:var(--orange-deep)}
   .tl-wk .twk{font-family:var(--grotesk);font-weight:700;font-size:.74rem;color:var(--ink)}
   .tl-wk .tdt{font-family:var(--grotesk);font-size:.6rem;color:var(--muted);margin:3px 0 8px;white-space:nowrap}
   .tl-wk .tfocus{font-family:var(--grotesk);font-size:.68rem;color:#3a3833;line-height:1.45}
@@ -303,11 +328,12 @@
     <button class="active" data-v="overview"><span class="n">01</span>Overview</button>
     <button data-v="plan"><span class="n">02</span>Timeline</button>
     <button data-v="funnel"><span class="n">03</span>Full funnel</button>
-    <button data-v="cro"><span class="n">04</span>CRO &amp; creative</button>
-    <button data-v="budget"><span class="n">05</span>Budget &amp; pacing</button>
-    <button data-v="reporting"><span class="n">06</span>Reporting &amp; n8n</button>
-    <button data-v="project"><span class="n">07</span>Projects &amp; Tasks</button>
-    <button data-v="extras"><span class="n">08</span>Extras</button>
+    <button data-v="cro"><span class="n">04</span>Creative &amp; CRO</button>
+    <button data-v="email"><span class="n">05</span>Email &amp; SMS</button>
+    <button data-v="budget"><span class="n">06</span>Budget &amp; pacing</button>
+    <button data-v="reporting"><span class="n">07</span>Reporting &amp; automation</button>
+    <button data-v="project"><span class="n">08</span>Projects &amp; Tasks</button>
+    <button data-v="extras"><span class="n">09</span>Extras</button>
   </nav>
 </header>
 
@@ -348,14 +374,15 @@
 <section class="view" id="v-plan">
   <div class="vh">
     <h1>The timeline — every week from June 3.</h1>
-    <p>If we start Wednesday, 3 June 2026, here's how the first quarter sequences and what each week is accountable for. The bar shows the three phases at a glance; the table below carries the weekly targets. Select a phase to filter. Targets are illustrative placeholders.</p>
+    <p>Starting Wednesday, 3 June 2026: diagnosis is a single focused sprint in week 1, then we build through the rest of month 1. At the start of each month after that we stop to analyze and adjust — read the numbers, reallocate, re-plan — before continuing. The bar shows the monthly cadence; the table carries the weekly targets. Select a phase to filter. Targets are illustrative placeholders.</p>
   </div>
   <div id="ganttWrap"></div>
   <div class="phasebar" id="phasebar">
     <div class="pbtn active" data-p="all"><div class="d">Full quarter</div><div class="h">All 13 weeks</div><div class="f">3 Jun – 31 Aug 2026</div></div>
-    <div class="pbtn" data-p="0"><div class="d">Days 0–30</div><div class="h">Diagnose</div><div class="f">Listen, audit, fix leaks</div></div>
-    <div class="pbtn" data-p="1"><div class="d">Days 31–60</div><div class="h">Build</div><div class="f">Systems, flows, tests</div></div>
-    <div class="pbtn" data-p="2"><div class="d">Days 61–90</div><div class="h">Scale</div><div class="f">Fund winners, codify</div></div>
+    <div class="pbtn" data-p="0"><div class="d">Week 1</div><div class="h">Diagnose</div><div class="f">All diagnosis, one week</div></div>
+    <div class="pbtn" data-p="1"><div class="d">Wks 2–4, 6–8</div><div class="h">Build</div><div class="f">Systems, flows, tests</div></div>
+    <div class="pbtn" data-p="3"><div class="d">Start of mo. 2 &amp; 3</div><div class="h">Analyze &amp; adjust</div><div class="f">Read, reallocate, re-plan</div></div>
+    <div class="pbtn" data-p="2"><div class="d">Wks 10–13</div><div class="h">Scale</div><div class="f">Fund winners, codify</div></div>
   </div>
   <div style="overflow-x:auto">
   <table class="weeks">
@@ -390,8 +417,28 @@
 <!-- ============ CRO & CREATIVE ============ -->
 <section class="view" id="v-cro">
   <div class="vh">
-    <h1>Conversion, creative, and audiences — the test plan.</h1>
-    <p>Paid spend only works as well as the page it lands on and the creative it runs on, so this is where a lot of the early wins are. Below: the on-site and Amazon test backlog scored by impact, then the frameworks I'd use to keep creative and audiences improving rather than guessing.</p>
+    <h1>Creative direction, conversion, and audiences.</h1>
+    <p>On a performance team the creative is the biggest lever, and the page it lands on is the next — so this is where a lot of the early wins are. Below: the creative direction I'd set and the loop that sharpens it, then the on-site and Amazon test backlog scored by impact, and the frameworks for creative and audiences.</p>
+  </div>
+
+  <h2 class="block" style="margin-top:8px">Creative direction</h2>
+  <p class="lead">Performance creative does most of the targeting and most of the persuading, so I'd own the creative direction on paid — the angle, the brief, and what "on-brand and on-message" means — working hand in hand with the creative team rather than over them. Here's the point of view I'd bring and the loop that keeps it improving.</p>
+  <div class="g3">
+    <div class="read"><div class="rt">The direction</div><h3>Sell the feeling, lead with the design</h3><p>Towels are bought on feel and on looks. I'd push creative that makes the softness and the design point of view almost tactile — the stretch as the scroll-stopper, colour and texture as the hook — and keep every cut unmistakably Typical, so the ads build the brand even while they sell a set.</p></div>
+    <div class="read"><div class="rt">Who owns what</div><h3>I set the brief, the team makes it sing</h3><p>I'd own the angle, the order of messages, and which concepts get budget; the creative team owns craft and execution. Every concept ships with a tight brief — the job, the audience, the one thing it has to land — so we brief on intent rather than art-direct by committee.</p></div>
+    <div class="read"><div class="rt">Closing the loop</div><h3>The numbers write the next brief</h3><p>Each test feeds back: which hook held attention, which angle converted, which format earned its cost. That becomes a short, specific brief for the next batch, so the team starts each round ahead of the last. Winners get scaled; losers get documented, not repeated.</p></div>
+  </div>
+
+  <div class="frame" style="margin-top:14px">
+    <h3>The creative feedback loop</h3>
+    <p class="fd">A tight weekly loop between performance and creative is the engine the role is really asking for. It keeps the team close to what's working and turns the ad account into a steady source of creative learning, not just a place assets go to be spent.</p>
+    <div class="launch">
+      <div class="lstep"><div class="ls-n">1 · Watch</div><div class="ls-t">Read the signal</div><div class="ls-d">Hook rate, hold, cost per result, and which angle actually converts — by concept, not just by campaign.</div></div>
+      <div class="lstep"><div class="ls-n">2 · Distil</div><div class="ls-t">Pull the insight</div><div class="ls-d">Turn the numbers into one or two clear learnings: what to keep, what to drop, what to try next.</div></div>
+      <div class="lstep"><div class="ls-n">3 · Brief</div><div class="ls-t">Direct the next batch</div><div class="ls-d">A short brief per concept — the job, the audience, the single message, a reference — handed to the team.</div></div>
+      <div class="lstep"><div class="ls-n">4 · Make</div><div class="ls-t">The team creates</div><div class="ls-d">Creative builds the variants, changing one deliberate lever at a time so the read stays clean.</div></div>
+      <div class="lstep"><div class="ls-n">5 · Test</div><div class="ls-t">Ship &amp; learn</div><div class="ls-d">Launch the batch, scale winners, document losers, and the read kicks off the loop again next week.</div></div>
+    </div>
   </div>
 
   <h2 class="block" style="margin-top:8px">Test backlog</h2>
@@ -432,6 +479,121 @@
     <div class="frame" style="margin-top:0"><h3 style="font-size:1.1rem">Prospecting</h3><p class="fd" style="margin-bottom:0">Start broad and let the platform find buyers, with interest and lookalike sets as a structured test against broad. Layer in design, home, and gifting affinities. On Amazon, in-market and category audiences. The creative does most of the targeting work.</p></div>
     <div class="frame" style="margin-top:0"><h3 style="font-size:1.1rem">Retargeting</h3><p class="fd" style="margin-bottom:0">Segment by depth: viewed a product, added to cart, started checkout, each with its own message and urgency. Engaged-but-didn't-buy from social. Amazon DSP for viewers once volume justifies it.</p></div>
     <div class="frame" style="margin-top:0"><h3 style="font-size:1.1rem">Owned &amp; lookalikes</h3><p class="fd" style="margin-bottom:0">Feed purchaser and high-LTV lists back as seed audiences, and suppress recent buyers from prospecting so we're not paying to reach people who just bought. Build a list for the next drop now.</p></div>
+  </div>
+</section>
+
+<!-- ============ EMAIL & SMS ============ -->
+<section class="view" id="v-email">
+  <div class="vh">
+    <h1>Email &amp; SMS — the owned channel.</h1>
+    <p>For a product people don't reorder often, the owned list is where retention actually lives, and it's the fastest payback in the plan. It does three jobs: automated flows that earn around the clock, one-time campaigns that carry the brand and the drops, and the segmentation underneath that makes both land. Built in Klaviyo and Postscript, and wired to suppress and feed paid rather than run beside it.</p>
+  </div>
+
+  <h2 class="block" style="margin-top:8px">The email ecosystem</h2>
+  <p class="lead">How traffic becomes an owned list, and how that list earns through one-time campaigns, the newsletter, and automated flows. Left to right: what brings people in, where we capture them, the segmented list, the two engines that work it, and what it produces.</p>
+  <div class="eco"><div class="eco-inner">
+    <div class="eco-col">
+      <div class="eco-h">Traffic in</div>
+      <div class="eco-node tr">Paid<span class="s">Meta · Google · Amazon · TikTok</span></div>
+      <div class="eco-node tr">Organic &amp; SEO<span class="s">Search, social, PR</span></div>
+      <div class="eco-node tr">Gifting &amp; referral<span class="s">Recipients become buyers</span></div>
+      <div class="eco-node tr">Campaigns themselves<span class="s">Drops &amp; newsletter drive return visits</span></div>
+    </div>
+    <div class="eco-arrow">→</div>
+    <div class="eco-col">
+      <div class="eco-h">Capture</div>
+      <div class="eco-node cap">Pop-up &amp; welcome offer</div>
+      <div class="eco-node cap">Checkout opt-in</div>
+      <div class="eco-node cap">Waitlist / back-in-stock</div>
+      <div class="eco-node cap">SMS opt-in</div>
+    </div>
+    <div class="eco-arrow">→</div>
+    <div class="eco-col">
+      <div class="eco-h">The owned list</div>
+      <div class="eco-list">Email + SMS list<span class="s">Segmented by lifecycle, behaviour, value &amp; engagement</span></div>
+      <div class="eco-node cmp">Newsletter base<span class="s">Engaged subscribers, kept warm between drops</span></div>
+    </div>
+    <div class="eco-arrow">→</div>
+    <div class="eco-col">
+      <div class="eco-h">The two engines</div>
+      <div class="eco-lane cmp">Campaigns · one-time</div>
+      <div class="eco-node cmp">Newsletter<span class="s">Repeat, high-affinity traffic</span></div>
+      <div class="eco-node cmp">Product drops<span class="s">High-intent, urgency traffic</span></div>
+      <div class="eco-node cmp">Gifting &amp; editorial<span class="s">New + top-of-funnel traffic</span></div>
+      <div class="eco-lane flw">Flows · automated</div>
+      <div class="eco-node flw">Welcome · Browse · Cart<span class="s">Convert new traffic</span></div>
+      <div class="eco-node flw">Post-purchase · Complete-the-set<span class="s">Lift AOV</span></div>
+      <div class="eco-node flw">Win-back · Gifting<span class="s">Bring lapsed back</span></div>
+    </div>
+    <div class="eco-arrow">→</div>
+    <div class="eco-col">
+      <div class="eco-h">What it produces</div>
+      <div class="eco-node out">First orders<span class="s">From captured traffic</span></div>
+      <div class="eco-node out">Bigger baskets<span class="s">Sets &amp; cross-sell</span></div>
+      <div class="eco-node out">Retention<span class="s">Where it lives for a durable product</span></div>
+      <div class="eco-node out">Warm launch list<span class="s">Every drop opens to demand</span></div>
+    </div>
+  </div></div>
+  <p class="eco-loop"><b>The loop:</b> campaigns and the newsletter don't just monetise the list — they send engaged traffic back to the site, which paid and flows re-capture, which grows the list that makes the next campaign bigger.</p>
+
+  <h2 class="block">Automated flows — earning around the clock</h2>
+  <p class="lead">My read is the brand captures well but the flows are thin, which is money on the table. These come first because they pay back while everything else is still being built. Each flow gets one job, then runs and optimises on its own data.</p>
+  <div style="overflow-x:auto">
+  <table class="cro">
+    <thead><tr><th>Flow</th><th>Trigger</th><th>What it does</th><th>Channel</th></tr></thead>
+    <tbody>
+      <tr><td>Welcome</td><td>Signup, no purchase</td><td>Earn the signup in the brand's voice, tell the design story, one gentle first-order nudge.</td><td><span class="surf">Email → SMS</span></td></tr>
+      <tr><td>Browse abandon</td><td>Viewed, didn't add</td><td>Bring the exact product back with proof and a reason to look again.</td><td><span class="surf">Email</span></td></tr>
+      <tr><td>Cart &amp; checkout</td><td>Added / began checkout</td><td>Recover the order, answer the objection (shipping, care), SMS for the time-sensitive nudge.</td><td><span class="surf">Email + SMS</span></td></tr>
+      <tr><td>Post-purchase care</td><td>Order placed</td><td>Set expectations, share care tips, build trust before the next ask.</td><td><span class="surf">Email + SMS</span></td></tr>
+      <tr><td>Complete-the-set</td><td>Bought a single</td><td>Cross-sell hand, face, mat, and robe to finish the bathroom — the AOV lever.</td><td><span class="surf">Email</span></td></tr>
+      <tr><td>Win-back</td><td>Lapsed / dormant</td><td>Re-engage with a new colour or a gifting angle before they go cold.</td><td><span class="surf">Email + SMS</span></td></tr>
+      <tr><td>Gifting follow-up</td><td>Gift note / gift order</td><td>Turn the gift-giver into a buyer for their own home.</td><td><span class="surf">Email</span></td></tr>
+      <tr><td>Back-in-stock &amp; early access</td><td>Waitlist / restock</td><td>Notify the warm list first on every drop — the launch list doing its job.</td><td><span class="surf">Email + SMS</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2 class="block">Campaigns &amp; segmentation</h2>
+  <div class="g2">
+    <div class="ex-card" style="margin:0">
+      <div class="et">One-time sends · campaigns</div>
+      <h3>Carry the brand between the drops</h3>
+      <p>Flows earn quietly; campaigns set the tempo. A planned, value-led calendar — segmented, never a blast to the whole list — so it stays warm and engaged instead of trained to tune out.</p>
+      <ul>
+        <li>New colour and product drops — early-access list first, then the full file</li>
+        <li>Gifting moments year-round — holidays, weddings, housewarming, Mother's &amp; Father's Day</li>
+        <li>Editorial &amp; brand — the design point of view, care guides, behind-the-scenes</li>
+        <li>Value done right — set and bundle offers, not sitewide discounts that train people to wait</li>
+        <li>Restocks, limited runs, and back-in-stock moments</li>
+        <li>Social proof — reviews, press, and real customer homes</li>
+      </ul>
+    </div>
+    <div class="ex-card" style="margin:0">
+      <div class="et">Segmentation · the layer underneath</div>
+      <h3>Right message, right list, right channel</h3>
+      <p>Both flows and campaigns only work if they're targeted. I'd segment on lifecycle, behaviour, value, and engagement — and protect deliverability by sending mainly to people who actually open.</p>
+      <ul>
+        <li>Lifecycle — non-buyer, one-time, repeat, lapsed, VIP / high-LTV</li>
+        <li>Behaviour — category and colour interest, set vs single, gifting buyers</li>
+        <li>Value — predicted LTV and AOV tiers for VIP treatment and discount suppression</li>
+        <li>Engagement — 30 / 60 / 90-day actives; sunset the dormant to protect sender reputation</li>
+        <li>Consent &amp; channel — SMS-opted vs email-only, so each message runs on the right rail</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="block">Where it meets paid</h2>
+  <div class="frame">
+    <h3>Owned and paid feeding each other, not running in parallel</h3>
+    <p class="fd">The role calls out email and SMS specifically where they intersect with paid. This is how I'd wire the two so the budget works harder.</p>
+    <div class="launch">
+      <div class="lstep"><div class="ls-n">Suppress</div><div class="ls-t">Stop paying twice</div><div class="ls-d">Recent buyers suppressed from prospecting, so we're not spending to reach people who just bought.</div></div>
+      <div class="lstep"><div class="ls-n">Seed</div><div class="ls-t">Feed the algorithms</div><div class="ls-d">Purchaser and high-LTV segments pushed back as lookalike and advantage seeds for prospecting.</div></div>
+      <div class="lstep"><div class="ls-n">Hand off</div><div class="ls-t">Catch the abandoners</div><div class="ls-d">Cart and checkout abandoners covered by retargeting and flow together, SMS for the urgent moments.</div></div>
+      <div class="lstep"><div class="ls-n">Build the list</div><div class="ls-t">Warm the next drop</div><div class="ls-d">Every paid visit is a chance to capture an email or number, so each launch opens to warm demand.</div></div>
+    </div>
+    <p class="note" style="border:none;padding-top:14px">Target: lift owned from under a fifth of revenue toward a third — flows live in the first weeks, the campaign calendar and core segments running by the build phase.</p>
   </div>
 </section>
 
@@ -498,7 +660,7 @@
 <section class="view" id="v-reporting">
   <div class="vh">
     <h1>Reporting, and the automation behind it.</h1>
-    <p>I'd rather the team spend time deciding things than pulling numbers, so the reporting runs itself. Here's a sample of how an n8n workflow would gather data from each platform, do the maths, and push it into a dashboard and a Slack summary, plus a mockup of what that dashboard would show. Switch between the weekly and monthly flows.</p>
+    <p>I'd rather the team spend time deciding things than pulling numbers, so the reporting runs itself. Here's a sample of how an automated workflow would gather data from each platform, do the maths, and push it into a dashboard and a Slack summary, plus a mockup of what that dashboard would show. Switch between the weekly and monthly flows.</p>
   </div>
 
   <div class="flow-toggle" id="flowToggle">
@@ -660,19 +822,19 @@ const stageOrder=["prospecting","retargeting","conversion"];
 const chanSub={Meta:"Demand + social",Google:"Search + Shopping",Amazon:"Marketplace + DSP"};
 
 const weeks=[
- {w:"Week 1",dt:"3–7 Jun",ph:0,focus:"Access, people, and the lay of the land",tgt:"All accounts accessed · founders + creative team met · audit started"},
- {w:"Week 2",dt:"8–14 Jun",ph:0,focus:"Audit Meta, Google, Amazon end to end",tgt:"Channel audits drafted · tracking gaps listed · obvious leaks flagged"},
- {w:"Week 3",dt:"15–21 Jun",ph:0,focus:"Fix tracking and reporting basics",tgt:"Contribution-margin reporting stood up · baselines for CAC, AOV, CVR set"},
- {w:"Week 4",dt:"22–28 Jun",ph:0,focus:"Quick wins and the State-of-Digital readout",tgt:"Cart + brand-search fixes live · Amazon listing fixes started · readout to founders"},
- {w:"Week 5",dt:"29 Jun–5 Jul",ph:1,focus:"Stand up the reporting dashboard",tgt:"n8n weekly flow live · dashboard v1 shared · weekly cadence begins"},
- {w:"Week 6",dt:"6–12 Jul",ph:1,focus:"Rebuild email & SMS flows",tgt:"Welcome, cart, checkout, post-purchase flows live in Klaviyo / Postscript"},
- {w:"Week 7",dt:"13–19 Jul",ph:1,focus:"Creative framework + first paid tests",tgt:"Creative testing system agreed with team · first Meta/Amazon test batches live"},
- {w:"Week 8",dt:"20–26 Jul",ph:1,focus:"Google + TikTok tests, CRO backlog",tgt:"Non-brand Google + TikTok tests live · first landing-page + bundle tests running"},
- {w:"Week 9",dt:"27 Jul–2 Aug",ph:2,focus:"Read the tests, start reallocating",tgt:"First read on test winners · budget shifting toward contribution margin"},
- {w:"Week 10",dt:"3–9 Aug",ph:2,focus:"Scale winners, set pacing rules",tgt:"Winning creative + channels scaled · pacing rules and guardrails set"},
- {w:"Week 11",dt:"10–16 Aug",ph:2,focus:"Monthly reporting + cohort view",tgt:"n8n monthly flow live · first cohort + payback view shared"},
- {w:"Week 12",dt:"17–23 Aug",ph:2,focus:"Write the launch playbook",tgt:"Repeatable launch process documented · next-drop list building"},
- {w:"Week 13",dt:"24–31 Aug",ph:2,focus:"90-day readout + next-quarter plan",tgt:"Results readout · 6–12 month plan + budget ask · team / agency recommendation"}
+ {w:"Week 1",dt:"3–7 Jun",ph:0,focus:"Diagnosis sprint — audit everything in one week",tgt:"All accounts accessed · full Meta/Google/Amazon/Shopify audit · tracking gaps + baselines (CAC, AOV, CVR) set"},
+ {w:"Week 2",dt:"8–14 Jun",ph:1,focus:"Build — fix leaks, stand up reporting",tgt:"Contribution-margin reporting live · cart + brand-search leaks fixed · Amazon listing fixes started"},
+ {w:"Week 3",dt:"15–21 Jun",ph:1,focus:"Build — owned + creative foundations",tgt:"Email/SMS flow rebuild started · creative testing framework agreed with the team"},
+ {w:"Week 4",dt:"22–28 Jun",ph:1,focus:"Build — first tests live",tgt:"First Meta + Amazon test batches live · top CRO tests running on clean tracking"},
+ {w:"Week 5",dt:"29 Jun–5 Jul",ph:3,focus:"Analyze & adjust — start of month 2",tgt:"Month-1 read · reallocate budget on contribution margin · month-2 build plan set before continuing"},
+ {w:"Week 6",dt:"6–12 Jul",ph:1,focus:"Build — scale the early winners",tgt:"Core flows + key segments live · campaign calendar running · winning creative scaled"},
+ {w:"Week 7",dt:"13–19 Jul",ph:1,focus:"Build — widen the channels",tgt:"Non-brand Google + TikTok tests live · bundle / build-your-set tests on PDP + cart"},
+ {w:"Week 8",dt:"20–26 Jul",ph:1,focus:"Build — deepen what works",tgt:"Second creative batch live · retargeting + owned flows tuned on data"},
+ {w:"Week 9",dt:"27 Jul–2 Aug",ph:3,focus:"Analyze & adjust — start of month 3",tgt:"Month-2 read · reallocate on payback · month-3 scale plan set before continuing"},
+ {w:"Week 10",dt:"3–9 Aug",ph:2,focus:"Scale — fund winners, set pacing rules",tgt:"Budget weighted to best contribution margin · pacing rules + guardrails set"},
+ {w:"Week 11",dt:"10–16 Aug",ph:2,focus:"Scale — monthly reporting + cohorts",tgt:"Automated monthly flow live · first cohort + payback view shared"},
+ {w:"Week 12",dt:"17–23 Aug",ph:2,focus:"Scale — write the launch playbook",tgt:"Repeatable launch process documented · next-drop list building"},
+ {w:"Week 13",dt:"24–31 Aug",ph:2,focus:"Scale — 90-day readout + next quarter",tgt:"Results readout · 6–12 month plan + budget ask · team / agency recommendation"}
 ];
 
 const cro=[
@@ -716,7 +878,7 @@ const flows={
 
 /* ============ TABS ============ */
 const tb=[...document.querySelectorAll('#tabs button')];
-const views={overview:'v-overview',plan:'v-plan',funnel:'v-funnel',cro:'v-cro',budget:'v-budget',reporting:'v-reporting',project:'v-project',extras:'v-extras'};
+const views={overview:'v-overview',plan:'v-plan',funnel:'v-funnel',cro:'v-cro',email:'v-email',budget:'v-budget',reporting:'v-reporting',project:'v-project',extras:'v-extras'};
 function show(v){
   tb.forEach(b=>b.classList.toggle('active',b.dataset.v===v));
   Object.entries(views).forEach(([k,id])=>document.getElementById(id).classList.toggle('active',k===v));
@@ -743,16 +905,15 @@ document.querySelectorAll('#rocks .rock').forEach(el=>el.addEventListener('click
 function renderWeeks(filter){
   document.getElementById('weeksBody').innerHTML=weeks.map(w=>{
     const hide=(filter!=='all'&&String(w.ph)!==filter)?'hide':'';
-    const phn=['Diagnose','Build','Scale'][w.ph];
+    const phn=['Diagnose','Build','Scale','Analyze & adjust'][w.ph];
     return `<tr class="wk-row ${hide}"><td class="wk">${w.w}</td><td class="dt">${w.dt}</td><td><span class="ph-tag ph${w.ph}">${phn}</span></td><td>${w.focus}</td><td class="tgt">${w.tgt}</td></tr>`;
   }).join('');
 }
 renderWeeks('all');
 /* timeline bar */
 function renderGantt(){
-  const bands=[{n:'Diagnose · Days 0–30',ph:0},{n:'Build · Days 31–60',ph:1},{n:'Scale · Days 61–90',ph:2}];
-  const counts=[0,0,0];weeks.forEach(w=>counts[w.ph]++);
-  const bandsHtml=bands.map(b=>`<div class="tl-band tlp${b.ph}" style="flex:${counts[b.ph]}">${b.n}</div>`).join('');
+  const bands=[{n:'Month 1 · Diagnose + Build',w:4},{n:'Month 2 · Adjust + Build',w:4},{n:'Month 3 · Adjust + Scale',w:5}];
+  const bandsHtml=bands.map((b,i)=>`<div class="tl-band tlm${i}" style="flex:${b.w}">${b.n}</div>`).join('');
   const wkHtml=weeks.map(w=>`<div class="tl-wk tlp${w.ph}"><div class="twk">${w.w.replace('Week ','W')}</div><div class="tdt">${w.dt}</div><div class="tfocus">${w.focus}</div></div>`).join('');
   document.getElementById('ganttWrap').innerHTML=`<div class="tl"><div class="tl-inner"><div class="tl-bands">${bandsHtml}</div><div class="tl-weeks">${wkHtml}</div></div></div>`;
 }
@@ -917,23 +1078,23 @@ const projWeeks=[
    ["Audit","Start the channel audit: account structure, current ROAS and CAC, where money's going."],
    ["SEO","First look at Shopify indexation and the Amazon listings as they stand."]
  ],fb:"End of week: a short note to the founders on first impressions and anything urgent."},
- {n:"Week 2",dt:"8–14 Jun",ph:0,theme:"Audit Meta, Google, and Amazon properly",rows:[
+ {n:"Week 2",dt:"8–14 Jun",ph:1,theme:"Build — fix leaks, stand up reporting",rows:[
    ["Channels","Full audit of each platform: what's working, what's wasted, what's missing. Amazon listing quality reviewed in detail."],
    ["Measurement","Map how revenue is currently attributed and where the tracking is unreliable."],
    ["CRO","Walk the funnel as a customer, on desktop and mobile, and log every point of friction."]
  ],fb:"Weekly: first pacing check, even on rough numbers, to set the habit."},
- {n:"Week 3",dt:"15–21 Jun",ph:0,theme:"Make the numbers trustworthy",rows:[
+ {n:"Week 3",dt:"15–21 Jun",ph:1,theme:"Build — owned + creative foundations",rows:[
    ["Reporting","Stand up contribution-margin reporting and agree the baseline with finance and the founders."],
    ["Channels","Cover branded search on Google if it isn't already. Cheap, fast, high-intent."],
    ["Owned","Audit the existing Klaviyo / Postscript setup and list what's missing."]
  ],fb:"Weekly review with founders begins, on the new baseline."},
- {n:"Week 4",dt:"22–28 Jun",ph:0,theme:"Quick wins and the first readout",rows:[
+ {n:"Week 4",dt:"22–28 Jun",ph:1,theme:"Build — first tests live",rows:[
    ["Quick wins","Ship the cart and checkout fixes, start the Amazon listing improvements."],
    ["Readout","Deliver the State-of-Digital: baseline, what's working, what's broken, the biggest opportunities and risks."],
    ["Planning","Draft the build-phase plan and the test budget ask."]
  ],fb:"Milestone: founders aligned on the baseline and the next 60 days."},
- {n:"Week 5",dt:"29 Jun–5 Jul",ph:1,theme:"The reporting runs itself",rows:[
-   ["Reporting","Build the n8n weekly flow and dashboard v1. Pacing and alerts start arriving automatically."],
+ {n:"Week 5",dt:"29 Jun–5 Jul",ph:3,theme:"Analyze & adjust, then keep building",rows:[
+   ["Reporting","Build the automated weekly reporting flow and dashboard v1. Pacing and alerts start arriving automatically."],
    ["Creative","Agree the creative testing framework and a fast briefing lane with the team."]
  ],fb:"Weekly cadence now runs off the automated dashboard."},
  {n:"Week 6",dt:"6–12 Jul",ph:1,theme:"Owned channels earning",rows:[
@@ -953,7 +1114,7 @@ const projWeeks=[
    ["CRO","Roll out winning tests, queue the next batch."]
  ],fb:"Weekly reallocation decisions off the dashboard."},
  {n:"Weeks 11–12",dt:"10–23 Aug",ph:2,theme:"Deepen reporting, write it down",rows:[
-   ["Reporting","n8n monthly flow live: contribution, LTV, payback, cohorts."],
+   ["Reporting","Automated monthly flow live: contribution, LTV, payback, cohorts."],
    ["Playbook","Document the repeatable launch process and start building the next-drop list."]
  ],fb:"First monthly cohort + payback review with founders."},
  {n:"Week 13",dt:"24–31 Aug",ph:2,theme:"Readout and what's next",rows:[
@@ -962,7 +1123,7 @@ const projWeeks=[
  ],fb:"Quarter close: agree the next phase and budget."}
 ];
 document.getElementById('projectList').innerHTML=projWeeks.map((w,i)=>{
-  const phn=['Diagnose','Build','Scale'][w.ph];
+  const phn=['Diagnose','Build','Scale','Analyze & adjust'][w.ph];
   return `<div class="pweek ${i===0?'open':''}" data-i="${i}">
     <div class="pw-head"><span class="wnum">${w.n}</span><span class="wdate">${w.dt}</span><span class="wtheme">${w.theme}</span><span class="wph ph${w.ph}">${phn}</span><span class="pl">+</span></div>
     <div class="pw-body"><div class="pw-in">
