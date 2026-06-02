@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TYPICAL — Growth Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0A09;
+    --panel:#141210;
+    --panel-2:#1B1815;
+    --line:rgba(244,241,234,.12);
+    --line-o:rgba(240,83,30,.35);
+    --orange:#F0531E;
+    --orange-2:#FF7A45;
+    --text:#F4F1EA;
+    --muted:#928D84;
+    --green:#7FB069;
+    --serif:'Fraunces',Georgia,serif;
+    --grotesk:'Hanken Grotesk',Helvetica,Arial,sans-serif;
+    --maxw:1280px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+    background-image:
+      radial-gradient(120% 80% at 80% -10%, rgba(240,83,30,.16), transparent 60%),
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:auto, 46px 46px, 46px 46px;
+  }
+  ::selection{background:var(--orange);color:#0B0A09}
+  .g{font-family:var(--grotesk)}
+  .label{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.26em;font-size:.64rem;font-weight:600;color:var(--muted)}
+  .num{font-family:var(--grotesk);font-weight:600;font-variant-numeric:tabular-nums}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ===== TOP BAR ===== */
+  header.top{
+    position:sticky;top:0;z-index:60;background:rgba(11,10,9,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,3vw,34px);gap:16px}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .wm{font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:1.05rem;transform:scaleX(1.12);transform-origin:left}
+  .brand .sub{font-family:var(--grotesk);font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--orange);border:1px solid var(--line-o);padding:3px 8px}
+  .status{display:flex;align-items:center;gap:8px;font-family:var(--grotesk);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(127,176,105,.7);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(127,176,105,.55)}70%{box-shadow:0 0 0 7px rgba(127,176,105,0)}100%{box-shadow:0 0 0 0 rgba(127,176,105,0)}}
+  @media(max-width:640px){.status{display:none}}
+
+  /* ===== TABS ===== */
+  nav.tabs{max-width:var(--maxw);margin:0 auto;display:flex;gap:0;padding:0 clamp(16px,3vw,34px);overflow-x:auto;border-bottom:1px solid var(--line)}
+  nav.tabs button{
+    background:none;border:none;color:var(--muted);font-family:var(--grotesk);font-weight:600;
+    text-transform:uppercase;letter-spacing:.16em;font-size:.7rem;padding:16px 18px;position:relative;white-space:nowrap;transition:color .2s;
+  }
+  nav.tabs button .n{color:var(--orange);margin-right:7px;font-size:.62rem;opacity:.8}
+  nav.tabs button:hover{color:var(--text)}
+  nav.tabs button.active{color:var(--text)}
+  nav.tabs button.active::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2px;background:var(--orange)}
+
+  /* ===== VIEW WRAP ===== */
+  main{max-width:var(--maxw);margin:0 auto;padding:clamp(26px,4vw,48px) clamp(16px,3vw,34px) 80px}
+  .view{display:none}
+  .view.active{display:block;animation:fade .5s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .view-head{margin-bottom:30px}
+  .view-head h1{font-weight:300;font-size:clamp(2rem,5vw,3.4rem);line-height:1;letter-spacing:-.02em}
+  .view-head p{font-family:var(--grotesk);color:var(--muted);max-width:64ch;margin-top:12px;font-size:.95rem;line-height:1.6}
+
+  .panel{background:var(--panel);border:1px solid var(--line);padding:22px}
+  .panel.glow{border-color:var(--line-o)}
+
+  /* ===== KPI CARDS ===== */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+  .kpi{background:var(--panel);border:1px solid var(--line);padding:20px;position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--orange);opacity:.0;transition:.3s}
+  .kpi:hover::before{opacity:1}
+  .kpi .v{font-weight:300;font-size:2.5rem;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:1.1rem;color:var(--muted)}
+  .kpi .l{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.18em;font-size:.6rem;color:var(--muted);margin-top:8px;font-weight:600}
+  .kpi .d{font-family:var(--grotesk);font-size:.7rem;margin-top:6px;color:var(--green)}
+  .kpi .d.tgt{color:var(--orange-2)}
+
+  .twocol{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:880px){.twocol{grid-template-columns:1fr}}
+
+  /* mini funnel on overview */
+  .mfunnel{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+  .mfunnel .seg{position:relative;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#0B0A09;font-family:var(--grotesk);font-weight:600;font-size:.78rem;letter-spacing:.04em;cursor:pointer;transition:filter .2s}
+  .mfunnel .seg:hover{filter:brightness(1.08)}
+  .mfunnel .seg .pct{font-size:.72rem;opacity:.8}
+  .mfunnel .seg.s1{background:var(--orange);width:100%}
+  .mfunnel .seg.s2{background:#E0531F;width:84%;align-self:center}
+  .mfunnel .seg.s3{background:#C24A1E;width:64%;align-self:center;color:var(--text)}
+  .mfunnel .seg.s4{background:#7A3417;width:44%;align-self:center;color:var(--text)}
+
+  /* phase strip */
+  .phasestrip{display:flex;gap:10px;margin-top:14px}
+  .phasestrip .ps{flex:1;border:1px solid var(--line);padding:14px}
+  .phasestrip .ps .ph{font-family:var(--grotesk);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange)}
+  .phasestrip .ps .pt{font-weight:300;font-size:1.05rem;margin-top:6px}
+  .phasestrip .ps .bar{height:4px;background:var(--panel-2);margin-top:12px;position:relative;overflow:hidden}
+  .phasestrip .ps .bar i{position:absolute;left:0;top:0;height:100%;background:var(--orange);width:0;transition:width 1.2s ease}
+
+  /* ===== INTERACTIVE FUNNEL VIEW ===== */
+  .funnel-wrap{display:grid;grid-template-columns:.95fr 1.05fr;gap:22px;align-items:start}
+  @media(max-width:920px){.funnel-wrap{grid-template-columns:1fr}}
+  .funnel{display:flex;flex-direction:column;gap:8px}
+  .fstage{
+    position:relative;border:1px solid var(--line);background:var(--panel);
+    padding:18px 20px;cursor:pointer;transition:.22s;margin:0 auto;
+  }
+  .fstage:hover{border-color:var(--line-o);transform:translateX(2px)}
+  .fstage.active{background:linear-gradient(90deg, rgba(240,83,30,.18), rgba(240,83,30,.02));border-color:var(--orange)}
+  .fstage .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .fstage .tag{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange)}
+  .fstage h3{font-weight:300;font-size:1.5rem;line-height:1;margin-top:6px}
+  .fstage .verb{font-family:var(--grotesk);font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+  .fstage .metric{font-family:var(--grotesk);font-weight:600;font-size:1.05rem;font-variant-numeric:tabular-nums}
+  .fstage .metric span{font-size:.6rem;color:var(--muted);display:block;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  .fw1{width:100%}.fw2{width:90%}.fw3{width:78%}.fw4{width:64%}
+  @media(max-width:920px){.fw1,.fw2,.fw3,.fw4{width:100%}}
+
+  .fdetail{background:var(--panel);border:1px solid var(--line-o);padding:26px;position:sticky;top:120px}
+  .fdetail .dtag{font-family:var(--grotesk);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--orange)}
+  .fdetail h2{font-weight:300;font-size:2rem;line-height:1;margin:8px 0 4px}
+  .fdetail .obj{font-family:var(--grotesk);color:var(--muted);font-size:.9rem;line-height:1.6;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:18px}
+  .dblock{margin-bottom:18px}
+  .dblock h4{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.18em;font-size:.62rem;color:var(--muted);font-weight:700;margin-bottom:10px}
+  .pills{display:flex;flex-wrap:wrap;gap:7px}
+  .pill{font-family:var(--grotesk);font-size:.74rem;border:1px solid var(--line);padding:6px 11px;background:var(--panel-2)}
+  .pill.o{border-color:var(--line-o);color:var(--orange-2)}
+  .dlist{list-style:none}
+  .dlist li{font-family:var(--grotesk);font-size:.86rem;padding:7px 0 7px 18px;position:relative;border-bottom:1px dotted var(--line);color:#cfcabf}
+  .dlist li::before{content:"→";position:absolute;left:0;color:var(--orange)}
+  .play{background:rgba(240,83,30,.1);border:1px solid var(--line-o);padding:14px 16px;font-family:var(--grotesk);font-size:.84rem;line-height:1.55}
+  .play b{color:var(--orange-2);text-transform:uppercase;letter-spacing:.14em;font-size:.62rem;display:block;margin-bottom:6px}
+
+  /* ===== CHANNELS ===== */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  .filters button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.14em;font-size:.64rem;font-weight:600;padding:9px 14px;transition:.2s}
+  .filters button:hover{color:var(--text);border-color:var(--line-o)}
+  .filters button.active{background:var(--orange);color:#0B0A09;border-color:var(--orange)}
+  .chan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+  .chan{background:var(--panel);border:1px solid var(--line);transition:.25s;cursor:pointer}
+  .chan:hover{border-color:var(--line-o)}
+  .chan.hide{display:none}
+  .chan .ch-top{padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .chan h3{font-weight:300;font-size:1.3rem;line-height:1.05}
+  .chan .stagetag{font-family:var(--grotesk);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-top:6px}
+  .chan .stat{font-family:var(--grotesk);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:4px 8px;border:1px solid var(--line);white-space:nowrap}
+  .stat.build{color:var(--orange-2);border-color:var(--line-o)}
+  .stat.fix{color:#ff5252;border-color:rgba(255,82,82,.4)}
+  .stat.scale{color:var(--green);border-color:rgba(127,176,105,.4)}
+  .chan .ch-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .chan.open .ch-body{max-height:420px}
+  .chan .ch-inner{padding:0 20px 20px;border-top:1px solid var(--line)}
+  .chan .ch-inner p{font-family:var(--grotesk);font-size:.82rem;color:#cfcabf;line-height:1.55;margin:14px 0}
+  .chan .kvs{display:flex;flex-wrap:wrap;gap:6px}
+  .kv{font-family:var(--grotesk);font-size:.66rem;letter-spacing:.06em;border:1px solid var(--line);padding:5px 9px;color:var(--muted)}
+  .chan .plus{font-family:var(--grotesk);color:var(--orange);font-size:1.1rem;line-height:1;transition:transform .3s}
+  .chan.open .plus{transform:rotate(45deg)}
+
+  /* ===== ROADMAP ===== */
+  .timeline{display:flex;gap:0;border:1px solid var(--line);background:var(--panel);margin-bottom:22px}
+  .tnode{flex:1;padding:20px;border-right:1px solid var(--line);cursor:pointer;transition:.25s;position:relative}
+  .tnode:last-child{border-right:none}
+  .tnode:hover{background:var(--panel-2)}
+  .tnode.active{background:linear-gradient(180deg,rgba(240,83,30,.16),transparent)}
+  .tnode.active::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--orange)}
+  .tnode .days{font-family:var(--grotesk);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange)}
+  .tnode .tt{font-weight:300;font-size:1.4rem;margin-top:8px;line-height:1}
+  .tnode .tf{font-family:var(--grotesk);font-size:.7rem;color:var(--muted);margin-top:8px;letter-spacing:.04em}
+  @media(max-width:720px){.timeline{flex-direction:column}.tnode{border-right:none;border-bottom:1px solid var(--line)}}
+  .phase-detail{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.phase-detail{grid-template-columns:1fr}}
+  .pcard{background:var(--panel);border:1px solid var(--line);padding:22px}
+  .pcard h4{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.16em;font-size:.64rem;color:var(--orange);font-weight:700;margin-bottom:14px}
+  .pcard ul{list-style:none}
+  .pcard li{font-family:var(--grotesk);font-size:.86rem;padding:8px 0 8px 18px;position:relative;border-bottom:1px dotted var(--line);color:#cfcabf}
+  .pcard li::before{content:"";position:absolute;left:0;top:14px;width:7px;height:7px;background:var(--orange)}
+  .pcard.out li::before{background:var(--green)}
+
+  /* ===== BUDGET ===== */
+  .budget-wrap{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media(max-width:880px){.budget-wrap{grid-template-columns:1fr}}
+  .totalbox{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px}
+  .totalbox input{background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-family:var(--grotesk);font-weight:600;font-size:1.4rem;padding:8px 12px;width:160px}
+  .slider-row{margin-bottom:20px}
+  .slider-row .sr-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .slider-row .sr-name{font-family:var(--grotesk);font-weight:600;font-size:.84rem;letter-spacing:.04em}
+  .slider-row .sr-name span{display:block;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:2px}
+  .slider-row .sr-val{font-family:var(--grotesk);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .slider-row .sr-val .dol{color:var(--orange-2);font-size:1.05rem}
+  .slider-row .sr-val .pc{font-size:.66rem;color:var(--muted)}
+  input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--panel-2);outline:none;border:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--orange);cursor:pointer;border:2px solid var(--bg)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--orange);cursor:pointer;border:2px solid var(--bg);border-radius:0}
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;gap:18px}
+  .donut-center{position:relative;width:240px;height:240px}
+  .donut-center .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .donut-center .mid .big{font-weight:300;font-size:1.5rem;line-height:1}
+  .donut-center .mid .sm{font-family:var(--grotesk);font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+  .legend{width:100%;display:flex;flex-direction:column;gap:8px}
+  .legend .li{display:flex;align-items:center;justify-content:space-between;font-family:var(--grotesk);font-size:.78rem;padding:7px 0;border-bottom:1px dotted var(--line)}
+  .legend .li .nm{display:flex;align-items:center;gap:9px}
+  .legend .li .sw{width:11px;height:11px}
+  .outputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .outbox{border:1px solid var(--line);padding:16px;background:var(--panel-2)}
+  .outbox .ov{font-weight:300;font-size:1.8rem;font-variant-numeric:tabular-nums;line-height:1}
+  .outbox .ol{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px;font-weight:600}
+
+  table.kpitable{width:100%;border-collapse:collapse;margin-top:14px;font-family:var(--grotesk)}
+  table.kpitable th,table.kpitable td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);font-size:.8rem}
+  table.kpitable th{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  table.kpitable td.t{color:var(--orange-2);font-weight:600;font-variant-numeric:tabular-nums}
+  table.kpitable td.b{font-variant-numeric:tabular-nums}
+
+  .note{font-family:var(--grotesk);font-size:.7rem;color:var(--muted);line-height:1.6;margin-top:22px;border-top:1px dotted var(--line);padding-top:16px}
+  footer.gd{border-top:1px solid var(--line);padding:26px clamp(16px,3vw,34px);text-align:center}
+  footer.gd .ft{font-style:italic;font-weight:300;font-size:1.2rem}
+  footer.gd .fm{font-family:var(--grotesk);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .illus{display:inline-block;font-family:var(--grotesk);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);border:1px solid var(--line-o);padding:3px 8px;margin-bottom:18px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="wm">Typical</span>
+      <span class="sub">Growth Command Center</span>
+    </div>
+    <div class="status"><a href="Typical_Strategic_Thesis.html" style="font-family:var(--grotesk);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:#0B0A09;background:var(--orange);padding:6px 12px;text-decoration:none;border:1px solid var(--orange);margin-right:14px">← The Strategy</a><span class="dot"></span> Live proposal · SDMM · FY2026</div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="active" data-view="overview"><span class="n">01</span>Overview</button>
+    <button data-view="funnel"><span class="n">02</span>The Funnel</button>
+    <button data-view="channels"><span class="n">03</span>Channels</button>
+    <button data-view="roadmap"><span class="n">04</span>Roadmap</button>
+    <button data-view="budget"><span class="n">05</span>Budget Modeler</button>
+    <a href="Typical_Strategic_Thesis.html" style="margin-left:auto;align-self:center;font-family:var(--grotesk);font-weight:600;text-transform:uppercase;letter-spacing:.16em;font-size:.7rem;padding:16px 18px;color:var(--orange);text-decoration:none;white-space:nowrap">↗ Strategy</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="view active" id="view-overview">
+  <div class="view-head">
+    <span class="illus">Illustrative figures — replace with live data</span>
+    <h1>Building the category's first real towel brand.</h1>
+    <p><strong>North star:</strong> profitable new-customer acquisition at scale, supported by a compounding owned audience and a repeatable launch engine. The plan moves demand from awareness through to advocacy, treating retention as collecting and gifting rather than replenishment — because a towel is durable, not consumable.</p>
+  </div>
+
+  <div class="kpis" id="kpiCards">
+    <div class="kpi"><div class="v" data-to="2.4" data-suffix="M">0</div><div class="l">Monthly reach (TOFU)</div><div class="d">+ awareness engine live</div></div>
+    <div class="kpi"><div class="v" data-to="18.5" data-suffix="K">0</div><div class="l">Email / SMS list</div><div class="d tgt">Target 45K by Q4</div></div>
+    <div class="kpi"><div class="v" data-prefix="$" data-to="42">0</div><div class="l">Blended CAC</div><div class="d tgt">Target $34</div></div>
+    <div class="kpi"><div class="v" data-to="2.1" data-suffix="%">0</div><div class="l">Site conversion</div><div class="d tgt">Target 3.0%</div></div>
+    <div class="kpi"><div class="v" data-to="2.8" data-suffix="x">0</div><div class="l">Blended ROAS / MER</div><div class="d tgt">Target 3.5x</div></div>
+    <div class="kpi"><div class="v" data-to="18" data-suffix="%">0</div><div class="l">Owned revenue share</div><div class="d tgt">Target 30%</div></div>
+  </div>
+
+  <div class="twocol">
+    <div class="panel glow">
+      <span class="label">Full-funnel snapshot — click a stage</span>
+      <div class="mfunnel" id="miniFunnel">
+        <div class="seg s1" data-stage="0"><span>Awareness · TOFU</span><span class="pct">Discover</span></div>
+        <div class="seg s2" data-stage="1"><span>Consideration · MOFU</span><span class="pct">Decide</span></div>
+        <div class="seg s3" data-stage="2"><span>Conversion · BOFU</span><span class="pct">Buy</span></div>
+        <div class="seg s4" data-stage="3"><span>Retention &amp; Advocacy</span><span class="pct">Return</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="label">90-day phasing</span>
+      <div class="phasestrip">
+        <div class="ps"><div class="ph">01 · 0–30</div><div class="pt">Diagnose</div><div class="bar"><i data-w="100"></i></div></div>
+        <div class="ps"><div class="ph">02 · 31–60</div><div class="pt">Build</div><div class="bar"><i data-w="55"></i></div></div>
+        <div class="ps"><div class="ph">03 · 61–90</div><div class="pt">Scale</div><div class="bar"><i data-w="20"></i></div></div>
+      </div>
+      <p class="note" style="margin-top:18px">Instrument first, then build owned channels, then scale paid against clean data. Every phase advances the funnel below it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUNNEL ============ -->
+<section class="view" id="view-funnel">
+  <div class="view-head">
+    <h1>Top to bottom, end to end.</h1>
+    <p>Every stage has an objective, a channel mix, the content that feeds it, the metrics that prove it, and the play that's specific to Typical. Select a stage to see the implementation.</p>
+  </div>
+  <div class="funnel-wrap">
+    <div class="funnel" id="funnelStages">
+      <div class="fstage fw1 active" data-stage="0"><div class="row"><div><div class="tag">TOFU · Discover</div><h3>Awareness</h3><div class="verb">Be found in a category with no brand recall</div></div><div class="metric">2.4M<span>Reach / mo</span></div></div></div>
+      <div class="fstage fw2" data-stage="1"><div class="row"><div><div class="tag">MOFU · Decide</div><h3>Consideration</h3><div class="verb">Turn interest into intent &amp; owned audience</div></div><div class="metric">185K<span>Sessions / mo</span></div></div></div>
+      <div class="fstage fw3" data-stage="2"><div class="row"><div><div class="tag">BOFU · Buy</div><h3>Conversion</h3><div class="verb">Convert efficiently, lift AOV</div></div><div class="metric">2.1%<span>CVR</span></div></div></div>
+      <div class="fstage fw4" data-stage="3"><div class="row"><div><div class="tag">Loop · Return</div><h3>Retention</h3><div class="verb">Collect, gift, refer — not replenish</div></div><div class="metric">18%<span>Owned rev</span></div></div></div>
+    </div>
+    <div class="fdetail" id="funnelDetail"></div>
+  </div>
+</section>
+
+<!-- ============ CHANNELS ============ -->
+<section class="view" id="view-channels">
+  <div class="view-head">
+    <h1>Ten channels, one system.</h1>
+    <p>Filter by funnel stage. Each card opens to show its role, status, and the metrics it owns. Status reflects the first 90 days: what to fix, build, or scale.</p>
+  </div>
+  <div class="filters" id="chanFilters">
+    <button class="active" data-f="all">All</button>
+    <button data-f="tofu">Awareness</button>
+    <button data-f="mofu">Consideration</button>
+    <button data-f="bofu">Conversion</button>
+    <button data-f="loop">Retention</button>
+  </div>
+  <div class="chan-grid" id="chanGrid"></div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section class="view" id="view-roadmap">
+  <div class="view-head">
+    <h1>The 90-day operating plan.</h1>
+    <p>Diagnose, then build, then scale. Select a phase to see what gets done and what gets delivered. Numbers and targets are finalized against live data in week one.</p>
+  </div>
+  <div class="timeline" id="timeline">
+    <div class="tnode active" data-phase="0"><div class="days">Days 0–30</div><div class="tt">Diagnose</div><div class="tf">Listen · Audit · Baseline · Quick wins</div></div>
+    <div class="tnode" data-phase="1"><div class="days">Days 31–60</div><div class="tt">Build</div><div class="tf">Strategy · Lifecycle · Pilots · CRO</div></div>
+    <div class="tnode" data-phase="2"><div class="days">Days 61–90</div><div class="tt">Scale</div><div class="tf">Reallocate · Systematize · Launch playbook</div></div>
+  </div>
+  <div class="phase-detail" id="phaseDetail"></div>
+</section>
+
+<!-- ============ BUDGET ============ -->
+<section class="view" id="view-budget">
+  <div class="view-head">
+    <span class="illus">Illustrative model — assumptions stated below</span>
+    <h1>Where the money goes.</h1>
+    <p>Adjust the monthly budget and the funnel allocation. The split, the dollars, and the illustrative outcomes update live. Weighted toward the top and middle, because acquisition and owned-audience growth are the early priorities.</p>
+  </div>
+  <div class="budget-wrap">
+    <div class="panel">
+      <div class="totalbox">
+        <div><span class="label" style="display:block;margin-bottom:6px">Monthly budget</span><input id="totalBudget" type="number" value="50000" min="0" step="1000"></div>
+      </div>
+      <div class="slider-row">
+        <div class="sr-top"><div class="sr-name">Awareness <span>TOFU</span></div><div class="sr-val"><span class="dol" id="d0">$0</span> <span class="pc" id="p0">0%</span></div></div>
+        <input type="range" min="0" max="100" value="40" data-i="0" class="bslider">
+      </div>
+      <div class="slider-row">
+        <div class="sr-top"><div class="sr-name">Consideration <span>MOFU</span></div><div class="sr-val"><span class="dol" id="d1">$0</span> <span class="pc" id="p1">0%</span></div></div>
+        <input type="range" min="0" max="100" value="28" data-i="1" class="bslider">
+      </div>
+      <div class="slider-row">
+        <div class="sr-top"><div class="sr-name">Conversion <span>BOFU</span></div><div class="sr-val"><span class="dol" id="d2">$0</span> <span class="pc" id="p2">0%</span></div></div>
+        <input type="range" min="0" max="100" value="27" data-i="2" class="bslider">
+      </div>
+      <div class="slider-row">
+        <div class="sr-top"><div class="sr-name">Retention &amp; Advocacy <span>Loop</span></div><div class="sr-val"><span class="dol" id="d3">$0</span> <span class="pc" id="p3">0%</span></div></div>
+        <input type="range" min="0" max="100" value="5" data-i="3" class="bslider">
+      </div>
+      <div class="outputs">
+        <div class="outbox"><div class="ov" id="outReach">0</div><div class="ol">Est. monthly reach</div></div>
+        <div class="outbox"><div class="ov" id="outNew">0</div><div class="ol">Est. new customers / mo</div></div>
+        <div class="outbox"><div class="ov" id="outRev">$0</div><div class="ol">Est. new revenue / mo</div></div>
+        <div class="outbox"><div class="ov" id="outMer">0x</div><div class="ol">Implied MER</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="donut-wrap">
+        <div class="donut-center">
+          <svg viewBox="0 0 120 120" width="240" height="240" id="donut">
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#1B1815" stroke-width="16"/>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#F0531E" stroke-width="16" id="arc0" transform="rotate(-90 60 60)" stroke-dasharray="0 999"/>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#FF7A45" stroke-width="16" id="arc1" transform="rotate(-90 60 60)" stroke-dasharray="0 999"/>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#C24A1E" stroke-width="16" id="arc2" transform="rotate(-90 60 60)" stroke-dasharray="0 999"/>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#7A3417" stroke-width="16" id="arc3" transform="rotate(-90 60 60)" stroke-dasharray="0 999"/>
+          </svg>
+          <div class="mid"><div class="big" id="donutTotal">$50K</div><div class="sm">Monthly spend</div></div>
+        </div>
+        <div class="legend">
+          <div class="li"><div class="nm"><span class="sw" style="background:#F0531E"></span>Awareness</div><span id="l0">$0</span></div>
+          <div class="li"><div class="nm"><span class="sw" style="background:#FF7A45"></span>Consideration</div><span id="l1">$0</span></div>
+          <div class="li"><div class="nm"><span class="sw" style="background:#C24A1E"></span>Conversion</div><span id="l2">$0</span></div>
+          <div class="li"><div class="nm"><span class="sw" style="background:#7A3417"></span>Retention</div><span id="l3">$0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:22px">
+    <span class="label">KPI framework — 30 / 60 / 90 targets</span>
+    <table class="kpitable">
+      <thead><tr><th>Metric</th><th>Baseline</th><th>Day 30</th><th>Day 60</th><th>Day 90</th></tr></thead>
+      <tbody>
+        <tr><td>Blended CAC</td><td class="b">$42</td><td class="t">$42</td><td class="t">$38</td><td class="t">$34</td></tr>
+        <tr><td>New customers / mo</td><td class="b">1,180</td><td class="t">1,180</td><td class="t">1,450</td><td class="t">1,850</td></tr>
+        <tr><td>Site conversion rate</td><td class="b">2.1%</td><td class="t">2.1%</td><td class="t">2.5%</td><td class="t">3.0%</td></tr>
+        <tr><td>AOV</td><td class="b">$78</td><td class="t">$78</td><td class="t">$86</td><td class="t">$96</td></tr>
+        <tr><td>Email / SMS list</td><td class="b">18.5K</td><td class="t">21K</td><td class="t">30K</td><td class="t">45K</td></tr>
+        <tr><td>Owned revenue share</td><td class="b">18%</td><td class="t">20%</td><td class="t">26%</td><td class="t">30%</td></tr>
+        <tr><td>Blended ROAS / MER</td><td class="b">2.8x</td><td class="t">2.8x</td><td class="t">3.1x</td><td class="t">3.5x</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>Model assumptions (illustrative):</strong> CPM $12 for awareness reach; blended CAC $42 applied to awareness + consideration + conversion spend; AOV $78; retention spend excluded from new-customer math. These are placeholders to demonstrate the model. Replace with Typical's actual unit economics in week one. Reminder: repeat-purchase is structurally low for a durable product, so LTV growth comes from sets, gifting, and new categories — not reorder frequency.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="gd">
+  <div class="ft">Don't forget to stretch.<span style="font-size:.5em;vertical-align:super">™</span></div>
+  <div class="fm">TYPICAL · Growth Command Center · Senior Digital Marketing Manager Proposal · Illustrative</div>
+</footer>
+
+<script>
+/* ---------- DATA ---------- */
+const funnelData = [
+  {
+    tag:"TOFU · Discover", title:"Awareness",
+    obj:"Become the name people reach for in a category where almost no one can name a brand. Create demand and capture the unbranded demand that already exists.",
+    channels:["Meta prospecting","TikTok","Creator seeding","PR / earned","Non-branded SEO","YouTube / CTV (later)"],
+    tactics:["\u201CSee the stretch\u201D demo video as the core hook","Founder / origin story (the Herschel credibility)","B&W editorial brand films","Category-education content: why your towel matters","Repurpose UGC into scroll-stopping creative"],
+    kpis:["Reach & impressions","Video views / VTR","CPM","New-visitor sessions","Branded search lift","Follower growth"],
+    play:"Own \u201Cstretch towel\u201D as a category term. Lead every awareness asset with the tactile product demo \u2014 it is the most scroll-stopping, least replicable thing the brand has."
+  },
+  {
+    tag:"MOFU · Decide", title:"Consideration",
+    obj:"Turn first-touch interest into genuine intent, and convert anonymous traffic into an owned audience the brand controls.",
+    channels:["Email & SMS capture","Meta / Google retargeting","Google non-branded + Shopping","Review & comparison content","\u201CFind your towel\u201D guidance"],
+    tactics:["Welcome series in the TYPICAL MAIL voice","Spec & certification proof: OEKO-TEX, 630 GSM, BCI","Reviews and social proof on PDPs","Color / pattern storytelling","Gift guides and \u201Cbuild your set\u201D framing"],
+    kpis:["List growth & capture rate","Open / click rate","Add-to-cart rate","PDP engagement","Retargeting ROAS","Assisted conversions"],
+    play:"Lead with feeling (\u201Cyou\u2019ll know it when you feel it\u201D), back it with hard specs. Use the $100 free-ship threshold to nudge two-item / set consideration."
+  },
+  {
+    tag:"BOFU · Buy", title:"Conversion",
+    obj:"Convert intent efficiently, remove every gram of friction, and lift average order value through sets and gifting.",
+    channels:["Branded search (full coverage)","Google Shopping / PMax","Cart & checkout retargeting","Abandoned-checkout flows","On-site CRO"],
+    tactics:["Abandoned checkout + browse flows live","\u201CBuild your set\u201D bundles to clear free-ship bar","Gifting paths and gift sets","Frictionless mobile checkout","Honest urgency only \u2014 drops & restocks"],
+    kpis:["Conversion rate","CAC","ROAS / MER","AOV","Cart \u2192 checkout \u2192 purchase","Return rate"],
+    play:"Fix the \u201CError loading cart\u201D state first \u2014 it is a direct revenue leak. Then bundle to clear $100 free shipping and make gifting a primary conversion driver."
+  },
+  {
+    tag:"Loop · Return", title:"Retention & Advocacy",
+    obj:"Maximize lifetime value through cross-sell, gifting, and brand love \u2014 not replenishment. A towel is durable, so the growth loop is collecting and referring.",
+    channels:["Post-purchase email / SMS","Loyalty & referral","Community / UGC","New-drop early-access list","Retail follow-through"],
+    tactics:["Post-purchase care education (\u201Cdon\u2019t forget to stretch\u201D)","Cross-sell to new colors / rooms / sets","Seasonal gifting reminders","Referral program","Early access to the next drop"],
+    kpis:["Repeat rate (realistic)","Cross-sell rate","Referral rate","LTV","Owned revenue share","Reviews / NPS"],
+    play:"Reframe retention around collecting and gifting. Build the next-product launch list now, so the next \u201Cessential\u201D launches to a warm audience on day one."
+  }
+];
+
+const channels = [
+  {n:"Meta — Paid Social",s:"tofu",stage:"TOFU · MOFU · BOFU",st:"build",stl:"Rebuild",p:"Full-funnel workhorse. Rebuilt around a clean account structure and a high-volume creative testing system fed by the design partner.",kv:["CPM","CTR","ROAS","CPA"]},
+  {n:"TikTok",s:"tofu",stage:"TOFU",st:"build",stl:"Test",p:"The product demo is tailor-made for TikTok. Lead with native, tactile \u201Cstretch\u201D content and creator collaborations before scaling spend.",kv:["VTR","Reach","Engagement","CPA"]},
+  {n:"Google — Branded Search",s:"bofu",stage:"BOFU",st:"fix",stl:"Fix",p:"Cheap, high-intent demand that is often left uncovered at launch. Defend the brand name and capture people PR & social sent searching.",kv:["Impr. share","CTR","CPA","CVR"]},
+  {n:"Google — Non-branded + PMax",s:"mofu",stage:"MOFU · BOFU",st:"build",stl:"Build",p:"Intercept the unbranded category demand the founding insight points to. Shopping & PMax to capture \u201Cbest bath towels\u201D intent.",kv:["Search vol.","ROAS","CPA","CVR"]},
+  {n:"SEO & Content",s:"tofu",stage:"TOFU · MOFU",st:"build",stl:"Build",p:"Own category terms over time. Fix indexation, build category-education content, become the answer to \u201Cwhat towel should I buy.\u201D",kv:["Rankings","Organic traffic","Branded vol."]},
+  {n:"Email & SMS — TYPICAL MAIL",s:"mofu",stage:"MOFU · BOFU · Loop",st:"build",stl:"Rebuild",p:"The highest-ROI lane. Capture is strong; lifecycle automation is thin. Rebuild welcome, abandonment, post-purchase, win-back, and launch flows.",kv:["List growth","Rev share","Open/Click","Flow rev"]},
+  {n:"Organic Social",s:"tofu",stage:"TOFU · Loop",st:"scale",stl:"Systematize",p:"Strong brand voice already. Systematize cadence, build the UGC and creator pipeline, and turn the community into an advocacy engine.",kv:["Followers","Engagement","UGC vol.","Saves"]},
+  {n:"Influencer & Creator",s:"mofu",stage:"TOFU · MOFU",st:"build",stl:"Pilot",p:"Seed product to design-literate creators; whitelist top performers into paid. Lean into the tactile, demo-able product story.",kv:["Reach","Eng. rate","Whitelisted ROAS"]},
+  {n:"CRO & Website",s:"bofu",stage:"BOFU",st:"fix",stl:"Audit \u2192 Test",p:"Audit the funnel, fix the cart error, add PDP social proof, build bundle/gifting paths, and run a prioritized test backlog.",kv:["CVR","AOV","Cart rate","Mobile CVR"]},
+  {n:"Retail Support",s:"loop",stage:"TOFU · BOFU",st:"build",stl:"Coordinate",p:"Digital drives retail too. Store locator, geo-targeted awareness near stockists, and co-op marketing with partners. Retail as social proof.",kv:["Store traffic","Geo lift","Co-op reach"]}
+];
+
+const phases = [
+  {
+    focus:"Funnel focus: instrument the whole funnel before touching spend.",
+    do:["Map every stakeholder; build trust","Audit measurement, pixels, attribution","Establish the true baseline (CAC, AOV, CVR, list)","Channel-by-channel audit","Ship safe quick wins (cart fix, branded search, core flows)"],
+    out:["\u201CState of Digital\u201D readout to leadership","Validated single source of truth","Top 3 opportunities & top 3 risks","3\u20135 quick wins shipped"]
+  },
+  {
+    focus:"Funnel focus: build the owned middle and test the paid top & bottom.",
+    do:["Write the digital growth strategy & channel plan","Rebuild full email/SMS lifecycle + launch SMS","Stand up performance-creative system with agency","Launch Meta / TikTok / Google pilots","Define CRO backlog; ship first tests"],
+    out:["Approved growth strategy + Q3/Q4 plan","Lifecycle flows live","2\u20133 paid pilots running on clean data","First CRO tests live"]
+  },
+  {
+    focus:"Funnel focus: scale winners across the funnel; systematize the loop.",
+    do:["Scale winning channels & creative; cut losers","Stand up live dashboard + reporting cadence","Finalize the repeatable launch playbook","Lock the holiday / peak plan","Recommend team & agency structure"],
+    out:["90-day results readout","Proven unit economics & path to next tier","Launch playbook (reusable asset)","6\u201312 month roadmap & budget ask"]
+  }
+];
+
+/* ---------- TABS ---------- */
+const tabBtns=[...document.querySelectorAll('#tabs button')];
+const views={overview:'view-overview',funnel:'view-funnel',channels:'view-channels',roadmap:'view-roadmap',budget:'view-budget'};
+function showView(v){
+  tabBtns.forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  Object.entries(views).forEach(([k,id])=>document.getElementById(id).classList.toggle('active',k===v));
+  if(v==='overview'){runCounters();runPhaseBars();}
+  if(v==='budget'){recalc();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabBtns.forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+
+/* ---------- COUNTERS ---------- */
+let countersDone=false;
+function runCounters(){
+  document.querySelectorAll('#kpiCards .v').forEach(el=>{
+    const to=parseFloat(el.dataset.to);const pre=el.dataset.prefix||'';const suf=el.dataset.suffix||'';
+    const dec=(to%1!==0)?1:0;let start=null;const dur=1100;
+    function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/dur,1);const e=1-Math.pow(1-p,3);
+      el.textContent=pre+(to*e).toFixed(dec)+suf;if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  });
+}
+function runPhaseBars(){document.querySelectorAll('.phasestrip .bar i').forEach(i=>{setTimeout(()=>i.style.width=i.dataset.w+'%',120);});}
+
+/* ---------- FUNNEL ---------- */
+function renderFunnelDetail(i){
+  const d=funnelData[i];
+  document.getElementById('funnelDetail').innerHTML=`
+    <div class="dtag">${d.tag}</div>
+    <h2>${d.title}</h2>
+    <p class="obj">${d.obj}</p>
+    <div class="dblock"><h4>Channels</h4><div class="pills">${d.channels.map(c=>`<span class="pill">${c}</span>`).join('')}</div></div>
+    <div class="dblock"><h4>Tactics &amp; content</h4><ul class="dlist">${d.tactics.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+    <div class="dblock"><h4>Metrics owned</h4><div class="pills">${d.kpis.map(k=>`<span class="pill o">${k}</span>`).join('')}</div></div>
+    <div class="play"><b>The Typical play</b>${d.play}</div>`;
+}
+function setStage(i){
+  document.querySelectorAll('#funnelStages .fstage').forEach(s=>s.classList.toggle('active',+s.dataset.stage===i));
+  renderFunnelDetail(i);
+}
+document.querySelectorAll('#funnelStages .fstage').forEach(s=>s.addEventListener('click',()=>setStage(+s.dataset.stage)));
+document.querySelectorAll('#miniFunnel .seg').forEach(s=>s.addEventListener('click',()=>{showView('funnel');setStage(+s.dataset.stage);}));
+renderFunnelDetail(0);
+
+/* ---------- CHANNELS ---------- */
+const grid=document.getElementById('chanGrid');
+grid.innerHTML=channels.map((c,idx)=>`
+  <div class="chan" data-s="${c.s}" data-idx="${idx}">
+    <div class="ch-top">
+      <div><h3>${c.n}</h3><div class="stagetag">${c.stage}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="stat ${c.st}">${c.stl}</span><span class="plus">+</span>
+      </div>
+    </div>
+    <div class="ch-body"><div class="ch-inner"><p>${c.p}</p><div class="kvs">${c.kv.map(k=>`<span class="kv">${k}</span>`).join('')}</div></div></div>
+  </div>`).join('');
+grid.querySelectorAll('.chan').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+document.querySelectorAll('#chanFilters button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#chanFilters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  const f=b.dataset.f;
+  grid.querySelectorAll('.chan').forEach(c=>{
+    const show=(f==='all')||c.dataset.s===f||(channels[+c.dataset.idx].stage.toLowerCase().includes(f));
+    c.classList.toggle('hide',!show);
+  });
+}));
+
+/* ---------- ROADMAP ---------- */
+function renderPhase(i){
+  const p=phases[i];
+  document.getElementById('phaseDetail').innerHTML=`
+    <div class="pcard"><h4>What gets done</h4><ul>${p.do.map(x=>`<li>${x}</li>`).join('')}</ul><p class="note" style="border:none;padding-top:14px">${p.focus}</p></div>
+    <div class="pcard out"><h4>Delivered by end of phase</h4><ul>${p.out.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+}
+document.querySelectorAll('#timeline .tnode').forEach(n=>n.addEventListener('click',()=>{
+  document.querySelectorAll('#timeline .tnode').forEach(x=>x.classList.remove('active'));n.classList.add('active');
+  renderPhase(+n.dataset.phase);
+}));
+renderPhase(0);
+
+/* ---------- BUDGET MODELER ---------- */
+const CPM=12, CAC=42, AOV=78;
+const C=2*Math.PI*48; // donut circumference
+const colors=['#F0531E','#FF7A45','#C24A1E','#7A3417'];
+function fmt(n){return n>=1000?'$'+(n/1000).toFixed(n>=10000?0:1)+'K':'$'+Math.round(n);}
+function fmtN(n){return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'K':Math.round(n);}
+function recalc(){
+  const total=Math.max(0,+document.getElementById('totalBudget').value||0);
+  const sliders=[...document.querySelectorAll('.bslider')];
+  const raw=sliders.map(s=>+s.value);
+  const sum=raw.reduce((a,b)=>a+b,0)||1;
+  const pcts=raw.map(r=>r/sum);
+  const dollars=pcts.map(p=>p*total);
+  let offset=0;
+  pcts.forEach((p,i)=>{
+    const arc=document.getElementById('arc'+i);
+    const len=p*C;
+    arc.setAttribute('stroke-dasharray',`${len} ${C-len}`);
+    arc.setAttribute('stroke-dashoffset',-offset);
+    offset+=len;
+    document.getElementById('d'+i).textContent=fmt(dollars[i]);
+    document.getElementById('p'+i).textContent=Math.round(p*100)+'%';
+    document.getElementById('l'+i).textContent=fmt(dollars[i]);
+  });
+  document.getElementById('donutTotal').textContent=fmt(total);
+  // illustrative outputs
+  const reach=(dollars[0]/CPM)*1000;
+  const acqSpend=dollars[0]+dollars[1]+dollars[2];
+  const newCust=acqSpend/CAC;
+  const rev=newCust*AOV;
+  const mer=total>0?(rev/total):0;
+  document.getElementById('outReach').textContent=fmtN(reach);
+  document.getElementById('outNew').textContent=fmtN(newCust);
+  document.getElementById('outRev').textContent=fmt(rev);
+  document.getElementById('outMer').textContent=mer.toFixed(1)+'x';
+}
+document.querySelectorAll('.bslider').forEach(s=>s.addEventListener('input',recalc));
+document.getElementById('totalBudget').addEventListener('input',recalc);
+
+/* ---------- INIT ---------- */
+runCounters();runPhaseBars();recalc();
+</script>
+</body>
+</html>
