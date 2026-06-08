@@ -3,1236 +3,971 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Typical — Growth Execution Dashboard</title>
+<title>Typical — Growth OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --paper:#F4F1EA;--paper-2:#ECE8DF;--panel:#FBF9F4;--ink:#100F0D;
-    --orange:#F0531E;--orange-deep:#D9430F;--muted:#6E6A61;
-    --line:rgba(16,15,13,.15);--line-soft:rgba(16,15,13,.08);--green:#4F7A3F;--blue:#2F5E8C;
-    --serif:'Fraunces',Georgia,serif;--grotesk:'Hanken Grotesk',Helvetica,Arial,sans-serif;--maxw:1280px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{background:var(--paper);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;line-height:1.55}
-  ::selection{background:var(--orange);color:var(--paper)}
-  .kicker{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.22em;font-size:.6rem;font-weight:600;color:var(--muted)}
-  .num{font-family:var(--grotesk);font-weight:600;font-variant-numeric:tabular-nums}
-  button{font-family:inherit;cursor:pointer}a{color:inherit}
+:root{
+  --bg:#090B0F;--bg-soft:#0D1015;--panel:#11151D;--panel-2:#161B25;--elev:#1A2030;
+  --line:rgba(255,255,255,.07);--line-2:rgba(255,255,255,.13);
+  --txt:#EEF1F6;--muted:#929AAA;--dim:#5E6675;
+  --acc:#5FE3DA;--acc-2:#39C2E0;--acc-deep:#1C8FA8;--violet:#8B8CF0;
+  --good:#5FE3A0;--warn:#F0BE6A;--bad:#F08C8C;--gold:#E8C98A;
+  --disp:'Fraunces',Georgia,serif;--ui:'Space Grotesk',-apple-system,sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:16px;--r-s:11px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--ui);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(900px 620px at 8% -8%,rgba(95,227,218,.10),transparent 58%),
+             radial-gradient(820px 600px at 102% -4%,rgba(57,194,224,.08),transparent 55%),
+             radial-gradient(760px 720px at 96% 112%,rgba(139,140,240,.07),transparent 60%);}
+::selection{background:var(--acc);color:#04221f}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;color:inherit;background:none;border:none}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+svg{display:block}
 
-  header.top{position:sticky;top:0;z-index:60;background:rgba(244,241,234,.9);backdrop-filter:blur(9px);border-bottom:1px solid var(--line)}
-  .top-in{max-width:var(--maxw);margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:12px clamp(16px,3vw,34px);gap:18px;flex-wrap:wrap}
-  .top-in .wm{font-weight:600;letter-spacing:.15em;text-transform:uppercase;font-size:1.02rem;transform:scaleX(1.1);transform-origin:left}
-  .docnav{display:flex;gap:20px;align-items:baseline}
-  .docnav a{font-family:var(--grotesk);font-size:.73rem;text-decoration:none;color:var(--muted);padding-bottom:2px;transition:color .2s}
-  .docnav a:hover{color:var(--ink)}
-  .docnav a.current{color:var(--ink);font-weight:600;border-bottom:1.5px solid var(--orange)}
-  @media(max-width:620px){.docnav{gap:13px}.docnav a{font-size:.66rem}}
+/* ===== SHELL ===== */
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+.side{width:256px;position:fixed;top:0;left:0;bottom:0;z-index:40;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(18,22,30,.92),rgba(10,12,16,.92));backdrop-filter:blur(14px);
+  border-right:1px solid var(--line);padding:22px 16px}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 22px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.brand .mk{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(140deg,rgba(95,227,218,.22),rgba(57,194,224,.06));border:1px solid var(--line-2);
+  box-shadow:0 0 24px rgba(95,227,218,.18) inset}
+.brand .mk svg{width:21px;height:21px;stroke:var(--acc)}
+.brand .bt{font-family:var(--disp);font-weight:500;font-size:1.18rem;letter-spacing:.01em;line-height:1}
+.brand .bs{font-family:var(--mono);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;color:var(--acc);margin-top:4px}
+.nav{display:flex;flex-direction:column;gap:3px;overflow-y:auto;flex:1;margin:0 -4px;padding:0 4px}
+.nav::-webkit-scrollbar{width:0}
+.navbtn{display:flex;align-items:center;gap:12px;padding:10px 11px;border-radius:11px;color:var(--muted);
+  font-size:.84rem;font-weight:500;letter-spacing:.01em;transition:.18s;position:relative;text-align:left;width:100%}
+.navbtn svg{width:18px;height:18px;stroke:currentColor;flex:none;transition:.18s}
+.navbtn:hover{color:var(--txt);background:rgba(255,255,255,.04)}
+.navbtn.on{color:var(--txt);background:linear-gradient(100deg,rgba(95,227,218,.14),rgba(95,227,218,.02));}
+.navbtn.on svg{stroke:var(--acc)}
+.navbtn.on::before{content:"";position:absolute;left:-4px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+.navbtn .nn{font-family:var(--mono);font-size:.6rem;color:var(--dim);margin-left:auto}
+.navbtn.on .nn{color:var(--acc)}
+.side-foot{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
+.statusrow{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:11px;background:rgba(95,227,234,.05);border:1px solid var(--line)}
+.dotlive{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(95,227,160,.16),0 0 10px var(--good);animation:pulse 2.4s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.statusrow .st{font-size:.7rem;line-height:1.3}.statusrow .st b{display:block;font-weight:600}
+.statusrow .st span{color:var(--muted);font-size:.64rem}
 
-  nav.tabs{max-width:var(--maxw);margin:0 auto;display:flex;padding:0 clamp(16px,3vw,34px);overflow-x:auto;border-bottom:1px solid var(--line)}
-  nav.tabs button{background:none;border:none;color:var(--muted);font-family:var(--grotesk);font-weight:600;font-size:.8rem;padding:14px 0;margin-right:22px;position:relative;white-space:nowrap;transition:color .2s}
-  nav.tabs button:hover{color:var(--ink)}
-  nav.tabs button.active{color:var(--ink)}
-  nav.tabs button.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--orange)}
-  nav.tabs button .n{color:var(--orange-deep);font-size:.62rem;margin-right:6px;opacity:.85}
+.main{margin-left:256px;flex:1;min-width:0}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px clamp(20px,3.5vw,46px);background:rgba(9,11,15,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.crumb{display:flex;align-items:center;gap:11px;min-width:0}
+.crumb .pi{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--panel-2);border:1px solid var(--line)}
+.crumb .pi svg{width:17px;height:17px;stroke:var(--acc)}
+.crumb h2{font-family:var(--disp);font-weight:400;font-size:1.18rem;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb .sub{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.tbright{display:flex;align-items:center;gap:10px;flex:none}
+.chip{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;color:var(--muted);border:1px solid var(--line);padding:7px 11px;border-radius:999px;white-space:nowrap}
+.chip b{color:var(--acc)}
+.chip.live{border-color:rgba(95,227,160,.3);color:var(--good)}
 
-  main{max-width:var(--maxw);margin:0 auto;padding:clamp(26px,3.5vw,44px) clamp(16px,3vw,34px) 90px}
-  .view{display:none}.view.active{display:block;animation:fade .4s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .vh{margin-bottom:26px;max-width:74ch}
-  .vh h1{font-weight:300;font-size:clamp(1.8rem,4.2vw,2.8rem);line-height:1.05;letter-spacing:-.015em}
-  .vh p{font-family:var(--grotesk);color:#3a3833;margin-top:13px;font-size:.96rem;line-height:1.7}
-  .illus{display:inline-block;font-family:var(--grotesk);font-size:.57rem;letter-spacing:.13em;text-transform:uppercase;color:var(--orange-deep);border:1px solid var(--line);padding:4px 9px;margin-bottom:14px}
-  .panel{background:var(--panel);border:1px solid var(--line);padding:22px}
-  .sec-label{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.16em;font-size:.64rem;font-weight:700;color:var(--orange-deep);margin:0 0 14px}
-  h2.block{font-weight:300;font-size:clamp(1.3rem,2.6vw,1.8rem);line-height:1.1;margin:42px 0 16px;letter-spacing:-.01em}
-  h2.block:first-of-type{margin-top:8px}
-  p.lead{font-family:var(--grotesk);font-size:.95rem;color:#3a3833;line-height:1.7;max-width:74ch;margin-bottom:18px}
+.view-wrap{padding:clamp(22px,3.2vw,40px) clamp(20px,3.5vw,46px) 100px;max-width:1320px}
+.view{display:none;animation:fade .45s cubic-bezier(.2,.7,.2,1)}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-  /* KPI strip */
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border:1px solid var(--ink)}
-  .kpi{padding:18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--panel)}
-  .kpi .v{font-weight:300;font-size:2rem;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .kpi .l{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.12em;font-size:.55rem;color:var(--muted);margin-top:9px;font-weight:600}
-  .kpi .t{font-family:var(--grotesk);font-size:.68rem;margin-top:5px;color:var(--muted)}
-  .kpi .t b{color:var(--orange-deep);font-weight:600}
+/* ===== TYPE ===== */
+.eyebrow{font-family:var(--mono);font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;color:var(--acc)}
+h1.disp{font-family:var(--disp);font-weight:300;font-size:clamp(2rem,4.6vw,3.4rem);line-height:1.02;letter-spacing:-.01em;margin:16px 0 0;max-width:18ch}
+h1.disp em{font-style:italic;color:var(--acc)}
+.lede{color:var(--muted);font-size:1rem;line-height:1.7;max-width:62ch;margin-top:18px}
+.lede b{color:var(--txt);font-weight:500}
+h3.sec{font-family:var(--disp);font-weight:400;font-size:clamp(1.3rem,2.4vw,1.7rem);letter-spacing:-.01em;margin:46px 0 18px;display:flex;align-items:center;gap:13px}
+h3.sec .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--line-2),transparent)}
+.kook{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
 
-  /* generic grid */
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+/* ===== PANELS ===== */
+.panel{background:linear-gradient(180deg,rgba(22,27,37,.6),rgba(17,21,29,.5));border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border:1px solid var(--line);border-radius:var(--r)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.g2,.g3,.g4{grid-template-columns:1fr}}
 
-  /* read cards */
-  .read{border:1px solid var(--line);background:var(--panel);padding:20px}
-  .read .rt{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-deep);font-weight:700}
-  .read h3{font-weight:300;font-size:1.3rem;margin:8px 0 8px;line-height:1.1}
-  .read p{font-family:var(--grotesk);font-size:.86rem;color:#3a3833;line-height:1.65}
+/* stat tiles */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px}
+.stat{position:relative;overflow:hidden;background:linear-gradient(165deg,rgba(255,255,255,.04),rgba(255,255,255,.012));border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stat:hover{border-color:var(--line-2)}
+.stat .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(95,227,218,.08);border:1px solid var(--line);margin-bottom:14px}
+.stat .ic svg{width:17px;height:17px;stroke:var(--acc)}
+.stat .v{font-family:var(--mono);font-weight:700;font-size:1.85rem;line-height:1;letter-spacing:-.02em}
+.stat .v small{font-size:.9rem;color:var(--muted);font-weight:400}
+.stat .l{font-size:.74rem;color:var(--muted);margin-top:9px}
+.stat .d{font-family:var(--mono);font-size:.62rem;margin-top:6px;color:var(--good)}
+.stat .d.flat{color:var(--dim)}.stat .d.warnc{color:var(--warn)}
+.stat .glow{position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(95,227,218,.12),transparent 70%)}
 
-  /* big rocks */
-  .rocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:6px}
-  .rock{border:1px solid var(--line);background:var(--panel);padding:20px;cursor:pointer;transition:.2s;position:relative}
-  .rock:hover{border-color:var(--orange)}
-  .rock.open{border-color:var(--orange);background:linear-gradient(180deg,rgba(240,83,30,.07),transparent)}
-  .rock .rn{font-family:var(--grotesk);font-weight:700;font-size:1.6rem;color:var(--orange);font-variant-numeric:tabular-nums;line-height:1}
-  .rock h3{font-weight:300;font-size:1.22rem;margin:10px 0 0;line-height:1.1}
-  .rock .why{font-family:var(--grotesk);font-size:.55rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:8px;font-weight:600}
-  .rock .det{max-height:0;overflow:hidden;transition:max-height .35s ease}
-  .rock.open .det{max-height:280px}
-  .rock .det p{font-family:var(--grotesk);font-size:.84rem;color:#3a3833;line-height:1.65;margin-top:12px;padding-top:12px;border-top:1px dotted var(--line)}
+/* ===== OVERVIEW HERO ===== */
+.hero{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(28,143,168,.16),rgba(17,21,29,.4) 46%,rgba(139,140,240,.08));padding:clamp(26px,4vw,46px);margin-bottom:26px}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 88% 0%,rgba(95,227,218,.14),transparent 60%);pointer-events:none}
+.hero .herofoot{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;position:relative}
 
-  /* matrix */
-  .matrix{border:1px solid var(--ink);overflow-x:auto}
-  .matrix table{width:100%;border-collapse:collapse;min-width:680px}
-  .matrix th,.matrix td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
-  .matrix th{background:var(--ink);color:var(--paper);padding:13px 15px;font-family:var(--grotesk);font-weight:600;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}
-  .matrix th.corner{background:var(--paper-2);color:var(--muted);font-size:.58rem}
-  .matrix th .sub{display:block;font-weight:500;color:#cfcabf;font-size:.58rem;text-transform:none;letter-spacing:.02em;margin-top:3px}
-  .matrix td.rowh{background:var(--panel);font-weight:500;font-size:1.05rem;font-family:var(--serif);padding:15px;width:120px}
-  .matrix td.rowh span{display:block;font-family:var(--grotesk);font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-top:4px}
-  .cell{padding:14px 15px;cursor:pointer;transition:.18s;background:var(--panel)}
-  .cell:hover{background:rgba(240,83,30,.07)}
-  .cell.sel{background:rgba(240,83,30,.13);box-shadow:inset 0 0 0 1.5px var(--orange)}
-  .cell .ch{font-family:var(--grotesk);font-weight:600;font-size:.82rem;line-height:1.3}
-  .cell .cs{font-family:var(--grotesk);font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.45}
-  .celldetail{border:1px solid var(--orange);background:var(--panel);padding:24px;margin-top:14px}
-  .celldetail .cd-tag{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-deep);font-weight:700}
-  .celldetail h3{font-weight:300;font-size:1.5rem;margin:6px 0 10px;line-height:1.05}
-  .celldetail .cd-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:22px}
-  @media(max-width:680px){.celldetail .cd-grid{grid-template-columns:1fr}}
-  .cd-grid h4{font-family:var(--grotesk);text-transform:uppercase;letter-spacing:.14em;font-size:.59rem;color:var(--muted);font-weight:700;margin-bottom:9px}
-  .cd-grid ul{list-style:none}
-  .cd-grid li{font-family:var(--grotesk);font-size:.86rem;padding:6px 0 6px 16px;position:relative;border-bottom:1px dotted var(--line);color:#3a3833;line-height:1.5}
-  .cd-grid li:before{content:"";position:absolute;left:0;top:12px;width:5px;height:5px;background:var(--orange)}
-  .pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .pill{font-family:var(--grotesk);font-size:.72rem;border:1px solid var(--line);padding:5px 10px;background:var(--paper)}
-  .pill.o{border-color:rgba(240,83,30,.4);color:var(--orange-deep)}
+/* pillars */
+.pillar{cursor:pointer;transition:.2s;padding:20px;border-radius:var(--r)}
+.pillar:hover{transform:translateY(-3px);border-color:var(--acc)}
+.pillar .pn{font-family:var(--mono);font-size:.62rem;color:var(--acc);letter-spacing:.1em}
+.pillar h4{font-family:var(--disp);font-weight:400;font-size:1.22rem;margin:11px 0 0;letter-spacing:-.01em}
+.pillar .pw{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.13em;color:var(--dim);margin-top:8px}
+.pillar .pd{font-size:.82rem;color:var(--muted);line-height:1.6;margin-top:12px;max-height:0;overflow:hidden;transition:max-height .4s;opacity:.0}
+.pillar.open .pd{max-height:220px;opacity:1;margin-top:12px}
+.pillar .more{font-family:var(--mono);font-size:.6rem;color:var(--acc);margin-top:12px}
 
-  /* 30-60-90 */
-  .phasebar{display:flex;border:1px solid var(--ink);margin-bottom:18px}
-  .pbtn{flex:1;padding:16px;border-right:1px solid var(--line);cursor:pointer;transition:.2s;position:relative;background:var(--panel)}
-  .pbtn:last-child{border-right:none}
-  .pbtn:hover{background:var(--paper-2)}
-  .pbtn.active{background:linear-gradient(180deg,rgba(240,83,30,.12),transparent)}
-  .pbtn.active:after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--orange)}
-  .pbtn .d{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-deep);font-weight:700}
-  .pbtn .h{font-weight:300;font-size:1.35rem;margin:6px 0 4px;line-height:1}
-  .pbtn .f{font-family:var(--grotesk);font-size:.7rem;color:var(--muted)}
-  @media(max-width:680px){.phasebar{flex-direction:column}.pbtn{border-right:none;border-bottom:1px solid var(--line)}}
-  table.weeks{width:100%;border-collapse:collapse;font-family:var(--grotesk);border:1px solid var(--ink)}
-  table.weeks th,table.weeks td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);font-size:.82rem;vertical-align:top}
-  table.weeks th{background:var(--ink);color:var(--paper);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;position:sticky;top:96px}
-  table.weeks tr.wk-row{transition:background .15s}
-  table.weeks tr.wk-row:hover{background:rgba(240,83,30,.05)}
-  table.weeks tr.hide{display:none}
-  table.weeks .wk{font-weight:700;color:var(--ink);white-space:nowrap}
-  table.weeks .dt{color:var(--muted);font-size:.72rem;white-space:nowrap}
-  table.weeks .ph-tag{font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 7px;border:1px solid var(--line);white-space:nowrap}
-  .ph0{color:var(--orange-deep);border-color:rgba(240,83,30,.4)!important}
-  .ph1{color:var(--blue);border-color:rgba(47,94,140,.4)!important}
-  .ph2{color:var(--green);border-color:rgba(79,122,63,.4)!important}
-  .ph3{color:#8A6D2B;border-color:rgba(181,135,42,.45)!important}
-  table.weeks .tgt{color:var(--orange-deep);font-weight:600;font-variant-numeric:tabular-nums}
+/* charts */
+.chartcard{padding:20px}
+.chartcard .ch-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.chartcard .ch-t{font-size:.86rem;font-weight:600}
+.chartcard .ch-s{font-family:var(--mono);font-size:.62rem;color:var(--dim)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.7rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.bigfig{font-family:var(--mono);font-weight:700;font-size:2.1rem;letter-spacing:-.02em;line-height:1}
+.donut-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.dlabel{font-size:.8rem;color:var(--muted)}
+.dlabel b{color:var(--txt);font-family:var(--mono)}
 
-  /* timeline bar */
-  .tl{border:1px solid var(--ink);margin-bottom:22px;overflow-x:auto}
-  .tl-inner{min-width:760px}
-  .tl-bands{display:flex;border-bottom:1px solid var(--ink)}
-  .tl-band{padding:9px 14px;font-family:var(--grotesk);font-weight:700;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;border-right:1px solid rgba(255,255,255,.25);color:#fff}
-  .tl-band:last-child{border-right:none}
-  .tl-band.tlp0{background:var(--orange-deep)}
-  .tl-band.tlp1{background:var(--blue)}
-  .tl-band.tlp2{background:var(--green)}
-  .tl-weeks{display:flex}
-  .tl-wk{flex:1;min-width:56px;padding:12px 10px 14px;border-right:1px solid var(--line);background:var(--panel);position:relative;transition:background .15s}
-  .tl-wk:last-child{border-right:none}
-  .tl-wk:hover{background:rgba(240,83,30,.06)}
-  .tl-wk:before{content:"";position:absolute;left:0;top:0;height:3px;width:100%}
-  .tl-wk.tlp0:before{background:var(--orange)}
-  .tl-wk.tlp1:before{background:var(--blue)}
-  .tl-wk.tlp2:before{background:var(--green)}
-  .tl-wk.tlp3:before{background:#B5872A}
-  .tl-wk.tlp3{background:rgba(181,135,42,.06)}
-  .tl-band.tlm0{background:var(--ink)}
-  .tl-band.tlm1{background:#2a2823}
-  .tl-band.tlm2{background:var(--ink)}
-  /* email ecosystem */
-  .eco{border:1px solid var(--ink);background:var(--panel);margin:2px 0 8px;overflow-x:auto}
-  .eco-inner{min-width:880px;display:flex;align-items:stretch}
-  .eco-col{flex:1;padding:16px 13px;display:flex;flex-direction:column;gap:9px}
-  .eco-arrow{display:flex;align-items:center;color:var(--orange);font-weight:700;font-size:1.1rem}
-  .eco-h{font-family:var(--grotesk);font-size:.54rem;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--muted)}
-  .eco-node{border:1px solid var(--line);background:var(--paper);padding:9px 11px;font-family:var(--grotesk);font-size:.76rem;font-weight:600;line-height:1.2}
-  .eco-node .s{display:block;font-weight:500;font-size:.63rem;color:var(--muted);margin-top:3px;line-height:1.35}
-  .eco-node.tr{border-left:3px solid var(--blue)}
-  .eco-node.cap{border-left:3px solid var(--ink)}
-  .eco-node.cmp{border-left:3px solid var(--orange)}
-  .eco-node.flw{border-left:3px solid var(--green)}
-  .eco-node.out{border-left:3px solid #B5872A}
-  .eco-list{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:11px;text-align:center;font-family:var(--grotesk);font-weight:700;font-size:.8rem}
-  .eco-list .s{display:block;font-weight:500;font-size:.62rem;color:#cfcabf;margin-top:4px;line-height:1.35}
-  .eco-lane{font-family:var(--grotesk);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin:3px 0 1px}
-  .eco-lane.cmp{color:var(--orange-deep)}.eco-lane.flw{color:var(--green)}
-  .eco-loop{font-family:var(--grotesk);font-size:.78rem;color:#3a3833;line-height:1.6;margin-top:10px;border-top:1px dotted var(--line);padding-top:10px}
-  .eco-loop b{color:var(--orange-deep)}
+/* tables */
+.tbl-wrap{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;min-width:560px}
+table.dt th{text-align:left;font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);font-weight:500;padding:14px 16px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--line)}
+table.dt td{padding:13px 16px;border-bottom:1px solid var(--line);font-size:.84rem;vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tbody tr{transition:.15s}
+table.dt tbody tr:hover{background:rgba(95,227,218,.04)}
+table.dt .num{font-family:var(--mono);color:var(--dim);font-size:.72rem}
+table.dt .nm{font-weight:600}
+table.dt .nm small{display:block;font-weight:400;font-size:.68rem;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.mvalue{font-family:var(--mono);font-weight:600}
+.mini{height:6px;border-radius:6px;background:rgba(255,255,255,.07);position:relative;overflow:hidden;min-width:60px;margin-top:5px}
+.mini i{position:absolute;left:0;top:0;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--acc-deep),var(--acc))}
+.tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500;padding:3px 9px;border-radius:999px;border:1px solid var(--line-2);color:var(--acc);white-space:nowrap}
+.tag.flow{color:var(--violet);border-color:rgba(139,140,240,.35)}
+.tag.camp{color:var(--acc-2)}
+.pill{font-family:var(--mono);font-size:.56rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.now{background:var(--acc);color:#04221f;border-color:var(--acc);box-shadow:0 0 16px rgba(95,227,218,.4)}
+.pill.sched{color:var(--acc-2);border-color:rgba(57,194,224,.3)}
+.pill.sent{color:var(--good);border-color:rgba(95,227,160,.3)}
+table.dt tr.today td{background:rgba(95,227,218,.07)}
 
-  /* email send schedule */
-  table.sched{width:100%;border-collapse:collapse;font-family:var(--grotesk);border:1px solid var(--ink)}
-  table.sched th,table.sched td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);font-size:.82rem;vertical-align:top}
-  table.sched th{background:var(--ink);color:var(--paper);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
-  table.sched tr:hover{background:rgba(240,83,30,.04)}
-  table.sched tr.today{background:rgba(240,83,30,.09)}
-  table.sched .num{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;width:34px}
-  table.sched .sd{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
-  table.sched .sd .dy{display:block;font-weight:500;font-size:.66rem;color:var(--muted);margin-top:2px}
-  table.sched .cmp{font-weight:600;color:var(--ink);min-width:200px}
-  table.sched .cmp span{display:block;font-weight:500;font-size:.66rem;color:var(--muted);margin-top:2px}
-  table.sched .aud{color:#3a3833;font-size:.76rem;line-height:1.45}
-  .coltag{font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:3px 8px;border:1px solid var(--line);white-space:nowrap;color:var(--orange-deep)}
-  .stp{font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:3px 9px;border:1px solid rgba(47,94,140,.4);white-space:nowrap;color:var(--blue)}
-  .stp.now{background:var(--orange);color:#fff;border-color:var(--orange)}
-  .tl-wk .twk{font-family:var(--grotesk);font-weight:700;font-size:.74rem;color:var(--ink)}
-  .tl-wk .tdt{font-family:var(--grotesk);font-size:.6rem;color:var(--muted);margin:3px 0 8px;white-space:nowrap}
-  .tl-wk .tfocus{font-family:var(--grotesk);font-size:.68rem;color:#3a3833;line-height:1.45}
+/* callouts */
+.callout{display:flex;gap:14px;padding:18px;border-radius:var(--r);border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.callout .ci{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;background:rgba(95,227,218,.08);border:1px solid var(--line)}
+.callout .ci svg{width:17px;height:17px;stroke:var(--acc)}
+.callout h5{font-size:.86rem;font-weight:600;margin-bottom:5px}
+.callout p{font-size:.79rem;color:var(--muted);line-height:1.6}
 
-  /* CRO */
-  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-  .filters button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-family:var(--grotesk);font-weight:600;font-size:.72rem;padding:8px 13px;transition:.2s}
-  .filters button:hover{color:var(--ink);border-color:var(--orange)}
-  .filters button.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-  table.cro{width:100%;border-collapse:collapse;font-family:var(--grotesk);border:1px solid var(--ink)}
-  table.cro th,table.cro td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);font-size:.82rem;vertical-align:top}
-  table.cro th{background:var(--ink);color:var(--paper);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;cursor:pointer;user-select:none}
-  table.cro th:hover{color:var(--orange)}
-  table.cro tr.hide{display:none}
-  .surf{font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:3px 7px;border:1px solid var(--line);white-space:nowrap}
-  .ice{font-weight:700;font-variant-numeric:tabular-nums;color:var(--orange-deep)}
-  .frame{border:1px solid var(--line);background:var(--panel);padding:22px;margin-top:14px}
-  .frame h3{font-weight:300;font-size:1.25rem;margin-bottom:6px}
-  .frame .fd{font-family:var(--grotesk);font-size:.85rem;color:#3a3833;line-height:1.65;margin-bottom:14px;max-width:72ch}
-  .grid-var{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border:1px solid var(--line)}
-  .var{padding:15px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .var .vt{font-family:var(--grotesk);font-weight:700;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep)}
-  .var ul{list-style:none;margin-top:8px}
-  .var li{font-family:var(--grotesk);font-size:.8rem;color:#3a3833;padding:4px 0;border-bottom:1px dotted var(--line)}
+/* schedule cadence */
+.cad{display:flex;align-items:center;gap:0;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
+.cad .seg{flex:1;min-width:120px;padding:16px 18px;border-right:1px solid var(--line)}
+.cad .seg:last-child{border-right:none}
+.cad .seg .v{font-family:var(--mono);font-weight:700;font-size:1.4rem}
+.cad .seg .l{font-size:.68rem;color:var(--muted);margin-top:5px}
 
-  /* budget */
-  .ctrlbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;border:1px solid var(--ink);background:var(--panel);padding:18px;margin-bottom:16px}
-  .ctrlbar .fld label{font-family:var(--grotesk);font-size:.57rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;display:block;margin-bottom:6px}
-  .ctrlbar input{background:var(--paper);border:1px solid var(--line);color:var(--ink);font-family:var(--grotesk);font-weight:600;font-size:1.15rem;padding:8px 12px;width:140px}
-  .seg{display:flex;border:1px solid var(--ink)}
-  .seg button{background:none;border:none;border-right:1px solid var(--ink);padding:9px 14px;font-family:var(--grotesk);font-weight:600;font-size:.72rem;color:var(--muted);transition:.2s}
-  .seg button:last-child{border-right:none}
-  .seg button.active{background:var(--ink);color:var(--paper)}
-  .bwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
-  @media(max-width:880px){.bwrap{grid-template-columns:1fr}}
-  .sr{margin-bottom:16px}
-  .sr .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-  .sr .nm{font-family:var(--grotesk);font-weight:600;font-size:.83rem}
-  .sr .nm span{display:block;font-size:.55rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:2px}
-  .sr .val{font-family:var(--grotesk);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
-  .sr .val .d{color:var(--orange-deep);font-size:1rem}.sr .val .p{font-size:.64rem;color:var(--muted)}
-  input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--paper-2);outline:none}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--orange);cursor:pointer;border:2px solid var(--paper)}
-  input[type=range]::-moz-range-thumb{width:15px;height:15px;background:var(--orange);cursor:pointer;border:2px solid var(--paper);border-radius:0}
-  .outs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
-  @media(max-width:600px){.outs{grid-template-columns:1fr 1fr}}
-  .out{border:1px solid var(--line);background:var(--paper);padding:14px}
-  .out .v{font-weight:300;font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1}
-  .out .l{font-family:var(--grotesk);font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-top:6px;font-weight:600}
-  .channel-split{margin-top:16px}
-  .csrow{display:grid;grid-template-columns:120px 1fr 70px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px dotted var(--line)}
-  .csrow .cn{font-family:var(--grotesk);font-size:.82rem;font-weight:600}
-  .csrow .track{height:8px;background:var(--paper-2);position:relative;overflow:hidden}
-  .csrow .track i{position:absolute;left:0;top:0;height:100%;background:var(--orange);transition:width .4s ease}
-  .csrow .amt{font-family:var(--grotesk);font-size:.78rem;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+/* timeline */
+.tl{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;overflow-x:auto;margin-bottom:18px}
+.tl-in{min-width:780px}
+.tl-bands{display:flex;border-bottom:1px solid var(--line)}
+.tl-band{flex:1;padding:11px 14px;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--muted);border-right:1px solid var(--line)}
+.tl-band:last-child{border-right:none}
+.tl-weeks{display:flex}
+.tl-wk{flex:1;min-width:58px;padding:13px 11px;border-right:1px solid var(--line);position:relative;transition:.15s}
+.tl-wk:last-child{border-right:none}
+.tl-wk:hover{background:rgba(95,227,218,.05)}
+.tl-wk::before{content:"";position:absolute;left:0;top:0;height:3px;width:100%}
+.tl-wk.k0::before{background:var(--acc)}.tl-wk.k1::before{background:var(--acc-2)}
+.tl-wk.k2::before{background:var(--good)}.tl-wk.k3::before{background:var(--gold)}
+.tl-wk .w{font-family:var(--mono);font-weight:700;font-size:.72rem}
+.tl-wk .dt{font-family:var(--mono);font-size:.58rem;color:var(--dim);margin:3px 0 7px}
+.tl-wk .f{font-size:.66rem;color:var(--muted);line-height:1.4}
+.pf-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pf{font-family:var(--mono);font-size:.64rem;letter-spacing:.04em;padding:8px 13px;border-radius:999px;border:1px solid var(--line);color:var(--muted);transition:.15s}
+.pf:hover{border-color:var(--line-2);color:var(--txt)}
+.pf.on{background:var(--acc);color:#04221f;border-color:var(--acc)}
+tr.hide{display:none}
+.kdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.k0b{background:var(--acc)}.k1b{background:var(--acc-2)}.k2b{background:var(--good)}.k3b{background:var(--gold)}
 
-  /* pacing chart */
-  .pacing-card{border:1px solid var(--line);background:var(--panel);padding:20px;margin-top:16px}
-  .pacing-svg{width:100%;height:auto;display:block;overflow:visible}
-  .pace-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-family:var(--grotesk);font-size:.72rem;color:var(--muted)}
-  .pace-legend span{display:inline-flex;align-items:center;gap:7px}
-  .pace-legend .sw{width:16px;height:3px}
-  .pace-note{font-family:var(--grotesk);font-size:.78rem;color:#3a3833;margin-top:12px;line-height:1.6}
-  .pace-note b{color:var(--orange-deep)}
+/* matrix */
+.mtx{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;overflow-x:auto}
+.mtx table{width:100%;border-collapse:collapse;min-width:720px}
+.mtx th{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:500;text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.mtx th .s{display:block;color:var(--dim);font-size:.54rem;text-transform:none;letter-spacing:.02em;margin-top:3px;font-weight:400}
+.mtx td.rh{font-family:var(--disp);font-size:1.05rem;padding:16px;background:rgba(255,255,255,.02);border-right:1px solid var(--line);border-bottom:1px solid var(--line);width:130px}
+.mtx td.rh span{display:block;font-family:var(--mono);font-size:.56rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.cell{padding:14px 16px;cursor:pointer;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:.15s}
+.cell:hover{background:rgba(95,227,218,.05)}
+.cell.sel{background:rgba(95,227,218,.1);box-shadow:inset 0 0 0 1.5px var(--acc)}
+.cell .ct{font-size:.82rem;font-weight:600}
+.cell .cs{font-size:.7rem;color:var(--muted);margin-top:4px}
+.celld{margin-top:14px;border:1px solid var(--acc);border-radius:var(--r);background:rgba(95,227,218,.04);padding:22px}
+.celld .tg{font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--acc)}
+.celld h4{font-family:var(--disp);font-weight:400;font-size:1.3rem;margin:7px 0 10px}
+.celld p{font-size:.84rem;color:var(--muted);line-height:1.65;max-width:74ch}
+.celld .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;margin-top:16px}
+@media(max-width:680px){.celld .cols{grid-template-columns:1fr}}
+.celld h6{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.celld ul{list-style:none}
+.celld li{font-size:.8rem;color:var(--muted);padding:6px 0 6px 16px;position:relative;border-bottom:1px solid var(--line)}
+.celld li::before{content:"";position:absolute;left:0;top:13px;width:5px;height:5px;border-radius:1px;background:var(--acc)}
+.pillrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 
-  /* n8n */
-  .flow-toggle{display:flex;border:1px solid var(--ink);width:fit-content;margin-bottom:18px}
-  .flow-toggle button{background:none;border:none;border-right:1px solid var(--ink);padding:10px 18px;font-family:var(--grotesk);font-weight:600;font-size:.74rem;color:var(--muted);transition:.2s}
-  .flow-toggle button:last-child{border-right:none}
-  .flow-toggle button.active{background:var(--ink);color:var(--paper)}
-  .flow{border:1px solid var(--ink);background:var(--panel);padding:24px;overflow-x:auto}
-  .flow-inner{display:flex;align-items:center;gap:0;min-width:900px}
-  .fcol{display:flex;flex-direction:column;gap:10px;justify-content:center}
-  .fconn{width:34px;height:1.5px;background:var(--ink);position:relative;flex:none;align-self:center}
-  .fconn:after{content:"";position:absolute;right:0;top:-3px;border-left:6px solid var(--ink);border-top:4px solid transparent;border-bottom:4px solid transparent}
-  .node{border:1px solid var(--ink);background:var(--paper);padding:11px 13px;min-width:140px;cursor:default;transition:.15s;position:relative}
-  .node:hover{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange)}
-  .node .ni{width:22px;height:22px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:var(--grotesk);font-weight:700;font-size:.62rem;color:var(--paper);margin-bottom:7px}
-  .node.src .ni{background:var(--blue)}.node.out .ni{background:var(--green)}.node.trig .ni{background:var(--ink)}
-  .node .nt{font-family:var(--grotesk);font-weight:600;font-size:.78rem;line-height:1.2}
-  .node .nd{font-family:var(--grotesk);font-size:.66rem;color:var(--muted);margin-top:3px;line-height:1.4}
-  .flow-cap{font-family:var(--grotesk);font-size:.78rem;color:#3a3833;line-height:1.65;margin-top:14px;max-width:78ch}
+/* ecosystem */
+.eco{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;overflow-x:auto}
+.eco-in{min-width:920px;display:flex;align-items:stretch}
+.eco-col{flex:1;padding:18px 14px;display:flex;flex-direction:column;gap:9px}
+.eco-arrow{display:flex;align-items:center;color:var(--acc);opacity:.6}
+.eco-h{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.enode{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);padding:10px 12px;font-size:.78rem;font-weight:600;border-left:3px solid var(--acc)}
+.enode .s{display:block;font-weight:400;font-size:.64rem;color:var(--muted);margin-top:3px;line-height:1.35}
+.enode.cap{border-left-color:var(--dim)}.enode.cmp{border-left-color:var(--acc-2)}.enode.flw{border-left-color:var(--violet)}.enode.out{border-left-color:var(--gold)}
+.ehub{border:1px solid var(--line-2);border-radius:10px;background:linear-gradient(140deg,rgba(95,227,218,.14),rgba(95,227,218,.02));padding:12px;text-align:center;font-weight:700;font-size:.82rem}
+.ehub .s{display:block;font-weight:400;font-size:.64rem;color:var(--muted);margin-top:4px}
+.lane{font-family:var(--mono);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin:4px 0 1px}
+.lane.cmp{color:var(--acc-2)}.lane.flw{color:var(--violet)}
+.eco-loop{font-size:.8rem;color:var(--muted);line-height:1.6;margin-top:12px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:rgba(255,255,255,.02)}
+.eco-loop b{color:var(--acc)}
 
-  /* reporting mock */
-  .mock{border:1px solid var(--ink);background:var(--panel);padding:20px;margin-top:16px}
-  .mock-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}
-  .mock-head .mt{font-family:var(--grotesk);font-weight:700;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase}
-  .mock-head .md{font-family:var(--grotesk);font-size:.66rem;color:var(--muted)}
-  .mock-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:0;border:1px solid var(--line);margin-bottom:14px}
-  .mk{padding:12px 14px;border-right:1px solid var(--line)}
-  .mk:last-child{border-right:none}
-  .mk .v{font-weight:300;font-size:1.4rem;font-variant-numeric:tabular-nums;line-height:1}
-  .mk .v small{font-size:.7rem;color:var(--green)}
-  .mk .l{font-family:var(--grotesk);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:5px;font-weight:600}
-  .mock-charts{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
-  @media(max-width:680px){.mock-charts{grid-template-columns:1fr}}
-  .chart-box{border:1px solid var(--line);padding:14px;background:var(--paper)}
-  .chart-box .ct{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px}
+/* lists */
+.flist{list-style:none}
+.flist li{font-size:.82rem;color:var(--muted);line-height:1.6;padding:9px 0 9px 18px;position:relative;border-bottom:1px solid var(--line)}
+.flist li:last-child{border-bottom:none}
+.flist li::before{content:"";position:absolute;left:0;top:15px;width:5px;height:5px;border-radius:1px;background:var(--acc)}
+.flist li b{color:var(--txt);font-weight:600}
 
-  /* project plan accordion */
-  .pweek{border:1px solid var(--line);background:var(--panel);margin-bottom:10px;transition:.2s}
-  .pweek:hover{border-color:rgba(240,83,30,.4)}
-  .pweek.open{border-color:var(--orange)}
-  .pw-head{display:flex;align-items:center;gap:16px;padding:16px 18px;cursor:pointer}
-  .pw-head .wnum{font-family:var(--grotesk);font-weight:700;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-deep);white-space:nowrap}
-  .pw-head .wdate{font-family:var(--grotesk);font-size:.72rem;color:var(--muted);white-space:nowrap}
-  .pw-head .wtheme{font-weight:300;font-size:1.15rem;flex:1;line-height:1.1}
-  .pw-head .wph{font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 8px;border:1px solid var(--line);white-space:nowrap}
-  .pw-head .pl{font-family:var(--grotesk);color:var(--orange);font-size:1.1rem;transition:transform .3s}
-  .pweek.open .pl{transform:rotate(45deg)}
-  .pw-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
-  .pweek.open .pw-body{max-height:700px}
-  .pw-in{padding:0 18px 18px;border-top:1px solid var(--line)}
-  .ws-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px dotted var(--line);align-items:baseline}
-  .ws-row:last-child{border-bottom:none}
-  .ws-tag{font-family:var(--grotesk);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted);width:120px;flex:none;padding-top:2px}
-  .ws-row p{font-family:var(--grotesk);font-size:.85rem;color:#3a3833;line-height:1.6}
-  .pw-fb{font-family:var(--grotesk);font-size:.78rem;color:var(--orange-deep);margin-top:12px;font-style:italic}
+/* budget */
+.ctrlbar{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;padding:18px;margin-bottom:16px}
+.fld label{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:7px}
+.fld input{background:var(--bg-soft);border:1px solid var(--line-2);color:var(--txt);font-family:var(--mono);font-weight:600;font-size:1.1rem;padding:9px 13px;width:150px;border-radius:10px}
+.seg2{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden}
+.seg2 button{padding:10px 15px;font-family:var(--mono);font-size:.68rem;color:var(--muted);border-right:1px solid var(--line-2)}
+.seg2 button:last-child{border-right:none}
+.seg2 button.on{background:var(--acc);color:#04221f;font-weight:600}
+.srow{margin-bottom:16px}
+.srow .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.srow .nm{font-size:.82rem;font-weight:600}.srow .nm span{display:block;font-family:var(--mono);font-size:.56rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.srow .val{font-family:var(--mono);text-align:right}.srow .val .d{color:var(--acc);font-weight:600}.srow .val .p{font-size:.66rem;color:var(--dim)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:4px;background:rgba(255,255,255,.1);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 12px rgba(95,227,218,.5)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--acc);cursor:pointer;border:none}
+.outs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+@media(max-width:560px){.outs{grid-template-columns:1fr 1fr}}
+.out{border:1px solid var(--line);border-radius:12px;padding:14px;background:rgba(255,255,255,.02)}
+.out .v{font-family:var(--mono);font-weight:700;font-size:1.4rem;letter-spacing:-.02em}
+.out .l{font-family:var(--mono);font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.csrow{display:grid;grid-template-columns:130px 1fr 86px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.csrow:last-child{border-bottom:none}
+.csrow .cn{font-size:.8rem;font-weight:500}
+.track{height:7px;border-radius:7px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.track i{position:absolute;left:0;top:0;height:100%;border-radius:7px;background:linear-gradient(90deg,var(--acc-deep),var(--acc));transition:width .4s}
+.csrow .amt{font-family:var(--mono);font-size:.74rem;text-align:right;color:var(--muted)}
+.note{font-size:.74rem;color:var(--dim);line-height:1.6;margin-top:14px}
+.note b{color:var(--muted)}
 
-  /* extras */
-  .ex-card{border:1px solid var(--line);background:var(--panel);padding:22px;margin-bottom:14px}
-  .ex-card .et{font-family:var(--grotesk);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--orange-deep);font-weight:700}
-  .ex-card h3{font-weight:300;font-size:1.4rem;margin:7px 0 10px;line-height:1.1}
-  .ex-card p{font-family:var(--grotesk);font-size:.87rem;color:#3a3833;line-height:1.7;max-width:74ch}
-  .ex-card ul{list-style:none;margin-top:12px}
-  .ex-card li{font-family:var(--grotesk);font-size:.85rem;color:#3a3833;padding:6px 0 6px 16px;position:relative;border-bottom:1px dotted var(--line);line-height:1.5}
-  .ex-card li:before{content:"";position:absolute;left:0;top:12px;width:5px;height:5px;background:var(--orange)}
-  /* launch flow */
-  .launch{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--ink);margin-top:14px}
-  .lstep{flex:1;min-width:130px;padding:16px;border-right:1px solid var(--line);position:relative}
-  .lstep:last-child{border-right:none}
-  .lstep .ls-n{font-family:var(--grotesk);font-weight:700;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--orange-deep)}
-  .lstep .ls-t{font-weight:400;font-size:1rem;margin:7px 0 6px;line-height:1.15}
-  .lstep .ls-d{font-family:var(--grotesk);font-size:.74rem;color:var(--muted);line-height:1.5}
+/* flow diagram */
+.flow{border:1px solid var(--line);border-radius:var(--r);overflow-x:auto;padding:22px;background:rgba(255,255,255,.015)}
+.flow-in{display:flex;align-items:center;min-width:880px}
+.fcol{display:flex;flex-direction:column;gap:9px}
+.fconn{width:30px;height:1.5px;background:var(--line-2);position:relative;flex:none}
+.fconn::after{content:"";position:absolute;right:0;top:-3px;border-left:6px solid var(--line-2);border-top:4px solid transparent;border-bottom:4px solid transparent}
+.fnode{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);padding:10px 12px;min-width:140px}
+.fnode .ni{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(95,227,218,.1);margin-bottom:7px}
+.fnode .ni svg{width:13px;height:13px;stroke:var(--acc)}
+.fnode .nt{font-size:.76rem;font-weight:600}
+.fnode .nd{font-size:.64rem;color:var(--muted);margin-top:2px}
+.ftoggle{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.ftoggle button{padding:9px 16px;font-family:var(--mono);font-size:.68rem;color:var(--muted);border-right:1px solid var(--line-2)}
+.ftoggle button:last-child{border-right:none}
+.ftoggle button.on{background:var(--acc);color:#04221f;font-weight:600}
 
-  .note{font-family:var(--grotesk);font-size:.72rem;color:var(--muted);line-height:1.65;margin-top:20px;border-top:1px dotted var(--line);padding-top:14px}
-  footer{border-top:1px solid var(--line);padding:22px clamp(16px,3vw,34px);max-width:var(--maxw);margin:0 auto;font-family:var(--grotesk);font-size:.7rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+/* projects accordion */
+.pw{border:1px solid var(--line);border-radius:var(--r);margin-bottom:11px;overflow:hidden;transition:.2s}
+.pw.open{border-color:var(--acc)}
+.pwh{display:flex;align-items:center;gap:15px;padding:16px 18px;cursor:pointer}
+.pwh .wn{font-family:var(--mono);font-weight:700;font-size:.62rem;color:var(--acc);white-space:nowrap}
+.pwh .wd{font-family:var(--mono);font-size:.62rem;color:var(--dim);white-space:nowrap}
+.pwh .wt{font-family:var(--disp);font-size:1.1rem;flex:1}
+.pwh .pl{color:var(--acc);font-size:1.2rem;transition:transform .3s}
+.pw.open .pl{transform:rotate(45deg)}
+.pwb{max-height:0;overflow:hidden;transition:max-height .4s}
+.pw.open .pwb{max-height:640px}
+.pwin{padding:0 18px 18px;border-top:1px solid var(--line)}
+.wsrow{display:flex;gap:13px;padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.wsrow:last-child{border-bottom:none}
+.wstag{font-family:var(--mono);font-size:.56rem;letter-spacing:.07em;text-transform:uppercase;color:var(--acc);width:90px;flex:none;padding-top:2px}
+.wsrow p{font-size:.82rem;color:var(--muted);line-height:1.55}
+.pwfb{font-size:.74rem;color:var(--acc);margin-top:13px;font-style:italic;font-family:var(--disp)}
+
+/* extras cards */
+.ex{padding:22px;border-radius:var(--r)}
+.ex .ei{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(95,227,218,.08);border:1px solid var(--line);margin-bottom:14px}
+.ex .ei svg{width:19px;height:19px;stroke:var(--acc)}
+.ex .et{font-family:var(--mono);font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;color:var(--acc)}
+.ex h4{font-family:var(--disp);font-weight:400;font-size:1.28rem;margin:8px 0 10px}
+.ex p{font-size:.82rem;color:var(--muted);line-height:1.65}
+
+.disc{font-size:.68rem;color:var(--dim);line-height:1.6;margin-top:40px;padding-top:18px;border-top:1px solid var(--line)}
+
+@media(max-width:820px){
+  .side{width:66px;padding:18px 10px}
+  .brand .bt,.brand .bs,.navbtn span.lab,.navbtn .nn,.side-foot{display:none}
+  .brand{justify-content:center;padding:6px 0 18px}
+  .navbtn{justify-content:center;padding:11px 0}
+  .main{margin-left:66px}
+}
 </style>
 </head>
 <body>
+<div class="app">
 
-<header class="top">
-  <div class="top-in">
-    <span class="wm">Typical</span>
-    <nav class="docnav">
-      <a href="index.html" class="current">Execution</a>
-    </nav>
-  </div>
-  <nav class="tabs" id="tabs">
-    <button class="active" data-v="overview"><span class="n">01</span>Overview</button>
-    <button data-v="schedule"><span class="n">02</span>Email Schedule</button>
-    <button data-v="plan"><span class="n">03</span>Timeline</button>
-    <button data-v="funnel"><span class="n">04</span>Full funnel</button>
-    <button data-v="cro"><span class="n">05</span>Creative &amp; CRO</button>
-    <button data-v="email"><span class="n">06</span>Email &amp; SMS</button>
-    <button data-v="budget"><span class="n">07</span>Budget &amp; pacing</button>
-    <button data-v="reporting"><span class="n">08</span>Reporting &amp; automation</button>
-    <button data-v="project"><span class="n">09</span>Projects &amp; Tasks</button>
-    <button data-v="extras"><span class="n">10</span>Extras</button>
-  </nav>
-</header>
-
-<main>
-
-<!-- ============ OVERVIEW ============ -->
-<section class="view active" id="v-overview">
-  <div class="vh">
-    <span class="illus">Week 1 · live execution · Typical growth</span>
-    <h1>Typical — growth execution dashboard.</h1>
-    <p>Live execution across Meta, Google, Amazon, Shopify, and Klaviyo. Week 1 is underway: the Klaviyo audit and email send calendar, abandoned-cart and flow work, Planable and social, the Meta handover with Keelan, and the Amazon briefing. See <b>Email Schedule</b> for the live send cadence.</p>
-  </div>
-
-  <h2 class="block">What I'm seeing</h2>
-  <div class="g3">
-    <div class="read"><div class="rt">Us</div><h3>A young brand with a real head start</h3><p>Four months old, strong design, and a founder who has built a category brand before. The product isn't the problem. The problem is that almost nobody is looking for us yet, and the launch attention has a shelf life.</p></div>
-    <div class="read"><div class="rt">The category</div><h3>Demand with no brand attached</h3><p>Ask people their favourite towel brand and they stall. On Amazon the category is mostly commodity listings with no point of view. That gap is the opportunity: there's real buying intent sitting there unclaimed.</p></div>
-    <div class="read"><div class="rt">Competitors</div><h3>Everyone leads with bedding</h3><p>The credible home brands treat towels as a side line, so they under-invest in the exact place we're strongest. Legacy luxury feels old and is priced out of reach. Value players win on price but have nothing to say.</p></div>
-  </div>
-
-  <h2 class="block">So here's the approach, and why</h2>
-  <p class="lead">The three paid platforms do different jobs, and the plan runs them as one funnel rather than three separate accounts. Meta and TikTok build demand we don't have yet. Google and Amazon capture the demand that already exists when someone goes looking. Treating Amazon as a first-class channel matters, because a large share of towel buying starts there, and a design brand that ignores it hands that search to commodity sellers. Early on I'd weight money toward the top of the funnel to build reach and an owned list while the category is still open, and I'd judge all of it on contribution margin and payback rather than ROAS alone, since a towel is durable and we can't lean on people reordering.</p>
-
-  <h2 class="block">The biggest rocks — tap to expand</h2>
-  <div class="rocks" id="rocks"></div>
-
-  <h2 class="block">The numbers we're driving toward</h2>
-  <div class="kpis" id="kpis">
-    <div class="kpi"><div class="v" data-to="3.6" data-suf="x">0</div><div class="l">Blended ROAS</div><div class="t">target <b>4.2x</b></div></div>
-    <div class="kpi"><div class="v" data-pre="$" data-to="42">0</div><div class="l">Blended CAC</div><div class="t">target <b>$34</b></div></div>
-    <div class="kpi"><div class="v" data-to="38" data-suf="%">0</div><div class="l">Contribution margin</div><div class="t">per order, target <b>44%</b></div></div>
-    <div class="kpi"><div class="v" data-to="1.2" data-suf=" ord">0</div><div class="l">CAC payback</div><div class="t">orders to recover</div></div>
-    <div class="kpi"><div class="v" data-pre="$" data-to="82">0</div><div class="l">AOV</div><div class="t">target <b>$98</b></div></div>
-    <div class="kpi"><div class="v" data-to="18" data-suf="%">0</div><div class="l">Email &amp; SMS share</div><div class="t">target <b>30%</b></div></div>
-  </div>
-</section>
-
-<!-- ============ EMAIL SCHEDULE ============ -->
-<section class="view" id="v-schedule">
-  <div class="vh">
-    <span class="illus">Week 1 deliverable · Klaviyo send calendar</span>
-    <h1>Email send schedule — every other day.</h1>
-    <p>Every prepared draft campaign in Klaviyo, sequenced to send one every other day starting today, Monday 8 June 2026, through Saturday 12 July. Already-sent campaigns are excluded; seasonal and internal drafts are parked out of the cadence. Drafts are built and ready in Klaviyo — this is the calendar to schedule them against.</p>
-  </div>
-
-  <div class="kpis" style="margin-bottom:22px">
-    <div class="kpi"><div class="v">18</div><div class="l">Drafts scheduled</div><div class="t">color drops</div></div>
-    <div class="kpi"><div class="v">8 Jun</div><div class="l">First send</div><div class="t"><b>today</b> · Mon</div></div>
-    <div class="kpi"><div class="v">12 Jul</div><div class="l">Last send</div><div class="t">Sun</div></div>
-    <div class="kpi"><div class="v">6</div><div class="l">Collections</div><div class="t">Offset, Two Tone, Polka Dot…</div></div>
-    <div class="kpi"><div class="v">7</div><div class="l">Excluded</div><div class="t">5 sent · 2 parked</div></div>
-  </div>
-
-  <div style="overflow-x:auto">
-    <table class="sched">
-      <thead><tr><th>#</th><th>Send</th><th>Campaign</th><th>Collection</th><th>Audience</th><th>Status</th></tr></thead>
-      <tbody id="schedBody"></tbody>
-    </table>
-  </div>
-
-  <h2 class="block">Excluded from the cadence</h2>
-  <div class="g2">
-    <div class="ex-card" style="margin:0">
-      <div class="et">Already sent · live</div>
-      <h3>Not rescheduled</h3>
-      <ul>
-        <li>Campaign 01 | Offset Stripe — Petal Pink, Cabernet Burgundy, Moss Green</li>
-        <li>Campaign 06 | Two Tone (B Side) — Lilac, Studio Navy</li>
-        <li>26-05-04-CA-MOTHERS-DAY-LAUNCH-EMAIL1</li>
-        <li>26-05-04-US-MOTHERS-DAY-LAUNCH-EMAIL1</li>
-        <li>Campaign Jan 23, 2026 — Sales Reps</li>
-      </ul>
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="side">
+    <div class="brand">
+      <span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg></span>
+      <div><div class="bt">Typical</div><div class="bs">Growth OS</div></div>
     </div>
-    <div class="ex-card" style="margin:0">
-      <div class="et">Parked drafts · out of cadence</div>
-      <h3>Seasonal / internal — held back</h3>
-      <ul>
-        <li>Mother's Day — May 4, 2026 (seasonal, date passed)</li>
-        <li>Campaign Mar 17, 2026 — Sales Reps (internal)</li>
-      </ul>
-      <p style="font-family:var(--grotesk);font-size:.78rem;color:var(--muted);margin-top:10px;line-height:1.6">Parked, not deleted — re-slot the Mother's Day creative for next year and keep the Sales Rep note for internal sends.</p>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="statusrow"><span class="dotlive"></span><div class="st"><b>Week 1 · live</b><span>Updated 8 Jun 2026</span></div></div>
     </div>
-  </div>
-</section>
+  </aside>
 
-<!-- ============ 30-60-90 ============ -->
-<section class="view" id="v-plan">
-  <div class="vh">
-    <h1>The timeline — every week from June 3.</h1>
-    <p>Starting Wednesday, 3 June 2026: diagnosis is a single focused sprint in week 1, then we build through the rest of month 1. At the start of each month after that we stop to analyze and adjust — read the numbers, reallocate, re-plan — before continuing. The bar shows the monthly cadence; the table carries the weekly targets. Select a phase to filter. Targets are illustrative placeholders.</p>
-  </div>
-  <div id="ganttWrap"></div>
-  <div class="phasebar" id="phasebar">
-    <div class="pbtn active" data-p="all"><div class="d">Full quarter</div><div class="h">All 13 weeks</div><div class="f">3 Jun – 31 Aug 2026</div></div>
-    <div class="pbtn" data-p="0"><div class="d">Week 1</div><div class="h">Diagnose</div><div class="f">All diagnosis, one week</div></div>
-    <div class="pbtn" data-p="1"><div class="d">Wks 2–4, 6–8</div><div class="h">Build</div><div class="f">Systems, flows, tests</div></div>
-    <div class="pbtn" data-p="3"><div class="d">Start of mo. 2 &amp; 3</div><div class="h">Analyze &amp; adjust</div><div class="f">Read, reallocate, re-plan</div></div>
-    <div class="pbtn" data-p="2"><div class="d">Wks 10–13</div><div class="h">Scale</div><div class="f">Fund winners, codify</div></div>
-  </div>
-  <div style="overflow-x:auto">
-  <table class="weeks">
-    <thead><tr><th>Week</th><th>Dates</th><th>Phase</th><th>Focus</th><th>Targets &amp; milestones</th></tr></thead>
-    <tbody id="weeksBody"></tbody>
-  </table>
-  </div>
-</section>
-
-<!-- ============ FULL FUNNEL ============ -->
-<section class="view" id="v-funnel">
-  <div class="vh">
-    <h1>The full-funnel plan, by channel and stage.</h1>
-    <p>The same three platforms, mapped across the funnel the role describes: prospecting, retargeting, and conversion plus retention. Each cell is the play I'd run there. Tap any cell to open the detail, including the audiences, the creative angle, and what I'd measure.</p>
-  </div>
-  <div class="matrix">
-    <table>
-      <thead>
-        <tr>
-          <th class="corner">Channel ↓ &nbsp; Stage →</th>
-          <th>Prospecting<span class="sub">reach people who don't know us</span></th>
-          <th>Retargeting &amp; consideration<span class="sub">bring interest back, capture it</span></th>
-          <th>Conversion &amp; retention<span class="sub">close, lift AOV, keep them</span></th>
-        </tr>
-      </thead>
-      <tbody id="matrixBody"></tbody>
-    </table>
-  </div>
-  <div id="cellDetail"></div>
-</section>
-
-<!-- ============ CRO & CREATIVE ============ -->
-<section class="view" id="v-cro">
-  <div class="vh">
-    <h1>Creative direction, conversion, and audiences.</h1>
-    <p>On a performance team the creative is the biggest lever, and the page it lands on is the next — so this is where a lot of the early wins are. Below: the creative direction I'd set and the loop that sharpens it, then the on-site and Amazon test backlog scored by impact, and the frameworks for creative and audiences.</p>
-  </div>
-
-  <h2 class="block" style="margin-top:8px">Creative direction</h2>
-  <p class="lead">Performance creative does most of the targeting and most of the persuading, so I'd own the creative direction on paid — the angle, the brief, and what "on-brand and on-message" means — working hand in hand with the creative team rather than over them. Here's the point of view I'd bring and the loop that keeps it improving.</p>
-  <div class="g3">
-    <div class="read"><div class="rt">The direction</div><h3>Sell the feeling, lead with the design</h3><p>Towels are bought on feel and on looks. I'd push creative that makes the softness and the design point of view almost tactile — the stretch as the scroll-stopper, colour and texture as the hook — and keep every cut unmistakably Typical, so the ads build the brand even while they sell a set.</p></div>
-    <div class="read"><div class="rt">Who owns what</div><h3>I set the brief, the team makes it sing</h3><p>I'd own the angle, the order of messages, and which concepts get budget; the creative team owns craft and execution. Every concept ships with a tight brief — the job, the audience, the one thing it has to land — so we brief on intent rather than art-direct by committee.</p></div>
-    <div class="read"><div class="rt">Closing the loop</div><h3>The numbers write the next brief</h3><p>Each test feeds back: which hook held attention, which angle converted, which format earned its cost. That becomes a short, specific brief for the next batch, so the team starts each round ahead of the last. Winners get scaled; losers get documented, not repeated.</p></div>
-  </div>
-
-  <div class="frame" style="margin-top:14px">
-    <h3>The creative feedback loop</h3>
-    <p class="fd">A tight weekly loop between performance and creative is the engine the role is really asking for. It keeps the team close to what's working and turns the ad account into a steady source of creative learning, not just a place assets go to be spent.</p>
-    <div class="launch">
-      <div class="lstep"><div class="ls-n">1 · Watch</div><div class="ls-t">Read the signal</div><div class="ls-d">Hook rate, hold, cost per result, and which angle actually converts — by concept, not just by campaign.</div></div>
-      <div class="lstep"><div class="ls-n">2 · Distil</div><div class="ls-t">Pull the insight</div><div class="ls-d">Turn the numbers into one or two clear learnings: what to keep, what to drop, what to try next.</div></div>
-      <div class="lstep"><div class="ls-n">3 · Brief</div><div class="ls-t">Direct the next batch</div><div class="ls-d">A short brief per concept — the job, the audience, the single message, a reference — handed to the team.</div></div>
-      <div class="lstep"><div class="ls-n">4 · Make</div><div class="ls-t">The team creates</div><div class="ls-d">Creative builds the variants, changing one deliberate lever at a time so the read stays clean.</div></div>
-      <div class="lstep"><div class="ls-n">5 · Test</div><div class="ls-t">Ship &amp; learn</div><div class="ls-d">Launch the batch, scale winners, document losers, and the read kicks off the loop again next week.</div></div>
-    </div>
-  </div>
-
-  <h2 class="block" style="margin-top:8px">Test backlog</h2>
-  <p class="lead">Scored on impact, confidence, and ease (ICE, out of 10). Filter by surface. This is how I'd decide what to test first rather than testing everything at once.</p>
-  <div class="filters" id="croFilters">
-    <button class="active" data-f="all">All surfaces</button>
-    <button data-f="Landing">Landing pages</button>
-    <button data-f="PDP">Product page</button>
-    <button data-f="Cart">Cart &amp; checkout</button>
-    <button data-f="Amazon">Amazon listing</button>
-  </div>
-  <div style="overflow-x:auto">
-  <table class="cro" id="croTable">
-    <thead><tr>
-      <th data-sort="surface">Surface</th>
-      <th data-sort="hyp">Hypothesis / test</th>
-      <th data-sort="metric">Primary metric</th>
-      <th data-sort="ice">ICE</th>
-    </tr></thead>
-    <tbody id="croBody"></tbody>
-  </table>
-  </div>
-
-  <h2 class="block">Creative testing framework</h2>
-  <div class="frame">
-    <h3>Test one variable at a time, in batches, on a weekly cadence</h3>
-    <p class="fd">The point is to learn what actually drives performance, not to flood the account with random assets. Each week a batch of variants goes live changing a single lever, the winners get scaled and the losers documented, and the learnings go back to the creative team as a short brief so the next batch starts ahead of where the last one did. Over a quarter that compounds into a real library of what works for this brand.</p>
-    <div class="grid-var">
-      <div class="var"><div class="vt">Hook (first 3 sec)</div><ul><li>The stretch demo</li><li>Founder / origin</li><li>Problem · ugly old towel</li><li>Social proof open</li></ul></div>
-      <div class="var"><div class="vt">Format</div><ul><li>UGC / creator</li><li>Studio product</li><li>Static carousel</li><li>Editorial / brand film</li></ul></div>
-      <div class="var"><div class="vt">Angle</div><ul><li>Feel &amp; quality</li><li>Design / colour</li><li>Gifting</li><li>Build-your-set</li></ul></div>
-      <div class="var"><div class="vt">Offer / CTA</div><ul><li>Free shipping over $100</li><li>Set vs single</li><li>New colour drop</li><li>Bundle &amp; save</li></ul></div>
-    </div>
-  </div>
-
-  <h2 class="block">Audience building</h2>
-  <div class="g3">
-    <div class="frame" style="margin-top:0"><h3 style="font-size:1.1rem">Prospecting</h3><p class="fd" style="margin-bottom:0">Start broad and let the platform find buyers, with interest and lookalike sets as a structured test against broad. Layer in design, home, and gifting affinities. On Amazon, in-market and category audiences. The creative does most of the targeting work.</p></div>
-    <div class="frame" style="margin-top:0"><h3 style="font-size:1.1rem">Retargeting</h3><p class="fd" style="margin-bottom:0">Segment by depth: viewed a product, added to cart, started checkout, each with its own message and urgency. Engaged-but-didn't-buy from social. Amazon DSP for viewers once volume justifies it.</p></div>
-    <div class="frame" style="margin-top:0"><h3 style="font-size:1.1rem">Owned &amp; lookalikes</h3><p class="fd" style="margin-bottom:0">Feed purchaser and high-LTV lists back as seed audiences, and suppress recent buyers from prospecting so we're not paying to reach people who just bought. Build a list for the next drop now.</p></div>
-  </div>
-</section>
-
-<!-- ============ EMAIL & SMS ============ -->
-<section class="view" id="v-email">
-  <div class="vh">
-    <h1>Email &amp; SMS — the owned channel.</h1>
-    <p>For a product people don't reorder often, the owned list is where retention actually lives, and it's the fastest payback in the plan. It does three jobs: automated flows that earn around the clock, one-time campaigns that carry the brand and the drops, and the segmentation underneath that makes both land. Built in Klaviyo and Postscript, and wired to suppress and feed paid rather than run beside it.</p>
-  </div>
-
-  <h2 class="block" style="margin-top:8px">The email ecosystem</h2>
-  <p class="lead">How traffic becomes an owned list, and how that list earns through one-time campaigns, the newsletter, and automated flows. Left to right: what brings people in, where we capture them, the segmented list, the two engines that work it, and what it produces.</p>
-  <div class="eco"><div class="eco-inner">
-    <div class="eco-col">
-      <div class="eco-h">Traffic in</div>
-      <div class="eco-node tr">Paid<span class="s">Meta · Google · Amazon · TikTok</span></div>
-      <div class="eco-node tr">Organic &amp; SEO<span class="s">Search, social, PR</span></div>
-      <div class="eco-node tr">Gifting &amp; referral<span class="s">Recipients become buyers</span></div>
-      <div class="eco-node tr">Campaigns themselves<span class="s">Drops &amp; newsletter drive return visits</span></div>
-    </div>
-    <div class="eco-arrow">→</div>
-    <div class="eco-col">
-      <div class="eco-h">Capture</div>
-      <div class="eco-node cap">Pop-up &amp; welcome offer</div>
-      <div class="eco-node cap">Checkout opt-in</div>
-      <div class="eco-node cap">Waitlist / back-in-stock</div>
-      <div class="eco-node cap">SMS opt-in</div>
-    </div>
-    <div class="eco-arrow">→</div>
-    <div class="eco-col">
-      <div class="eco-h">The owned list</div>
-      <div class="eco-list">Email + SMS list<span class="s">Segmented by lifecycle, behaviour, value &amp; engagement</span></div>
-      <div class="eco-node cmp">Newsletter base<span class="s">Engaged subscribers, kept warm between drops</span></div>
-    </div>
-    <div class="eco-arrow">→</div>
-    <div class="eco-col">
-      <div class="eco-h">The two engines</div>
-      <div class="eco-lane cmp">Campaigns · one-time</div>
-      <div class="eco-node cmp">Newsletter<span class="s">Repeat, high-affinity traffic</span></div>
-      <div class="eco-node cmp">Product drops<span class="s">High-intent, urgency traffic</span></div>
-      <div class="eco-node cmp">Gifting &amp; editorial<span class="s">New + top-of-funnel traffic</span></div>
-      <div class="eco-lane flw">Flows · automated</div>
-      <div class="eco-node flw">Welcome · Browse · Cart<span class="s">Convert new traffic</span></div>
-      <div class="eco-node flw">Post-purchase · Complete-the-set<span class="s">Lift AOV</span></div>
-      <div class="eco-node flw">Win-back · Gifting<span class="s">Bring lapsed back</span></div>
-    </div>
-    <div class="eco-arrow">→</div>
-    <div class="eco-col">
-      <div class="eco-h">What it produces</div>
-      <div class="eco-node out">First orders<span class="s">From captured traffic</span></div>
-      <div class="eco-node out">Bigger baskets<span class="s">Sets &amp; cross-sell</span></div>
-      <div class="eco-node out">Retention<span class="s">Where it lives for a durable product</span></div>
-      <div class="eco-node out">Warm launch list<span class="s">Every drop opens to demand</span></div>
-    </div>
-  </div></div>
-  <p class="eco-loop"><b>The loop:</b> campaigns and the newsletter don't just monetise the list — they send engaged traffic back to the site, which paid and flows re-capture, which grows the list that makes the next campaign bigger.</p>
-
-  <h2 class="block">Automated flows — earning around the clock</h2>
-  <p class="lead">My read is the brand captures well but the flows are thin, which is money on the table. These come first because they pay back while everything else is still being built. Each flow gets one job, then runs and optimises on its own data.</p>
-  <div style="overflow-x:auto">
-  <table class="cro">
-    <thead><tr><th>Flow</th><th>Trigger</th><th>What it does</th><th>Channel</th></tr></thead>
-    <tbody>
-      <tr><td>Welcome</td><td>Signup, no purchase</td><td>Earn the signup in the brand's voice, tell the design story, one gentle first-order nudge.</td><td><span class="surf">Email → SMS</span></td></tr>
-      <tr><td>Browse abandon</td><td>Viewed, didn't add</td><td>Bring the exact product back with proof and a reason to look again.</td><td><span class="surf">Email</span></td></tr>
-      <tr><td>Cart &amp; checkout</td><td>Added / began checkout</td><td>Recover the order, answer the objection (shipping, care), SMS for the time-sensitive nudge.</td><td><span class="surf">Email + SMS</span></td></tr>
-      <tr><td>Post-purchase care</td><td>Order placed</td><td>Set expectations, share care tips, build trust before the next ask.</td><td><span class="surf">Email + SMS</span></td></tr>
-      <tr><td>Complete-the-set</td><td>Bought a single</td><td>Cross-sell hand, face, mat, and robe to finish the bathroom — the AOV lever.</td><td><span class="surf">Email</span></td></tr>
-      <tr><td>Win-back</td><td>Lapsed / dormant</td><td>Re-engage with a new colour or a gifting angle before they go cold.</td><td><span class="surf">Email + SMS</span></td></tr>
-      <tr><td>Gifting follow-up</td><td>Gift note / gift order</td><td>Turn the gift-giver into a buyer for their own home.</td><td><span class="surf">Email</span></td></tr>
-      <tr><td>Back-in-stock &amp; early access</td><td>Waitlist / restock</td><td>Notify the warm list first on every drop — the launch list doing its job.</td><td><span class="surf">Email + SMS</span></td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <h2 class="block">Campaigns &amp; segmentation</h2>
-  <div class="g2">
-    <div class="ex-card" style="margin:0">
-      <div class="et">One-time sends · campaigns</div>
-      <h3>Carry the brand between the drops</h3>
-      <p>Flows earn quietly; campaigns set the tempo. A planned, value-led calendar — segmented, never a blast to the whole list — so it stays warm and engaged instead of trained to tune out.</p>
-      <ul>
-        <li>New colour and product drops — early-access list first, then the full file</li>
-        <li>Gifting moments year-round — holidays, weddings, housewarming, Mother's &amp; Father's Day</li>
-        <li>Editorial &amp; brand — the design point of view, care guides, behind-the-scenes</li>
-        <li>Value done right — set and bundle offers, not sitewide discounts that train people to wait</li>
-        <li>Restocks, limited runs, and back-in-stock moments</li>
-        <li>Social proof — reviews, press, and real customer homes</li>
-      </ul>
-    </div>
-    <div class="ex-card" style="margin:0">
-      <div class="et">Segmentation · the layer underneath</div>
-      <h3>Right message, right list, right channel</h3>
-      <p>Both flows and campaigns only work if they're targeted. I'd segment on lifecycle, behaviour, value, and engagement — and protect deliverability by sending mainly to people who actually open.</p>
-      <ul>
-        <li>Lifecycle — non-buyer, one-time, repeat, lapsed, VIP / high-LTV</li>
-        <li>Behaviour — category and colour interest, set vs single, gifting buyers</li>
-        <li>Value — predicted LTV and AOV tiers for VIP treatment and discount suppression</li>
-        <li>Engagement — 30 / 60 / 90-day actives; sunset the dormant to protect sender reputation</li>
-        <li>Consent &amp; channel — SMS-opted vs email-only, so each message runs on the right rail</li>
-      </ul>
-    </div>
-  </div>
-
-  <h2 class="block">Where it meets paid</h2>
-  <div class="frame">
-    <h3>Owned and paid feeding each other, not running in parallel</h3>
-    <p class="fd">The role calls out email and SMS specifically where they intersect with paid. This is how I'd wire the two so the budget works harder.</p>
-    <div class="launch">
-      <div class="lstep"><div class="ls-n">Suppress</div><div class="ls-t">Stop paying twice</div><div class="ls-d">Recent buyers suppressed from prospecting, so we're not spending to reach people who just bought.</div></div>
-      <div class="lstep"><div class="ls-n">Seed</div><div class="ls-t">Feed the algorithms</div><div class="ls-d">Purchaser and high-LTV segments pushed back as lookalike and advantage seeds for prospecting.</div></div>
-      <div class="lstep"><div class="ls-n">Hand off</div><div class="ls-t">Catch the abandoners</div><div class="ls-d">Cart and checkout abandoners covered by retargeting and flow together, SMS for the urgent moments.</div></div>
-      <div class="lstep"><div class="ls-n">Build the list</div><div class="ls-t">Warm the next drop</div><div class="ls-d">Every paid visit is a chance to capture an email or number, so each launch opens to warm demand.</div></div>
-    </div>
-    <p class="note" style="border:none;padding-top:14px">Target: lift owned from under a fifth of revenue toward a third — flows live in the first weeks, the campaign calendar and core segments running by the build phase.</p>
-  </div>
-</section>
-
-<!-- ============ BUDGET & PACING ============ -->
-<section class="view" id="v-budget">
-  <div class="vh">
-    <span class="illus">Illustrative model · assumptions shown below</span>
-    <h1>Budget allocation and pacing.</h1>
-    <p>A sample of how I'd split a monthly budget across the funnel and channels, and track whether we're spending at the right pace through the month. Change the scenario or the budget and everything recalculates. The pacing tracker shows planned spend against where a real month tends to drift.</p>
-  </div>
-
-  <div class="ctrlbar">
-    <div class="fld"><label>Monthly budget (USD)</label><input id="totBudget" type="number" value="50000" min="0" step="1000"></div>
-    <div class="fld"><label>Scenario</label>
-      <div class="seg" id="scenario">
-        <button data-s="cons">Conservative</button>
-        <button class="active" data-s="base">Base</button>
-        <button data-s="agg">Aggressive</button>
+  <!-- ========== MAIN ========== -->
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb">
+        <span class="pi" id="crumbIcon"></span>
+        <div><h2 id="crumbTitle">Overview</h2><div class="sub" id="crumbSub">Growth command</div></div>
       </div>
-    </div>
-  </div>
-
-  <div class="bwrap">
-    <div class="panel">
-      <span class="sec-label">Allocation across the funnel</span>
-      <div class="sr"><div class="top"><div class="nm">Prospecting <span>top — Meta, TikTok, Amazon SP, non-brand Google</span></div><div class="val"><span class="d" id="d0">$0</span> <span class="p" id="p0">0%</span></div></div><input type="range" min="0" max="100" value="42" data-i="0" class="bs"></div>
-      <div class="sr"><div class="top"><div class="nm">Retargeting <span>mid — Meta/Google/Amazon DSP, owned capture</span></div><div class="val"><span class="d" id="d1">$0</span> <span class="p" id="p1">0%</span></div></div><input type="range" min="0" max="100" value="26" data-i="1" class="bs"></div>
-      <div class="sr"><div class="top"><div class="nm">Conversion <span>brand search, Shopping, Amazon SP, CRO</span></div><div class="val"><span class="d" id="d2">$0</span> <span class="p" id="p2">0%</span></div></div><input type="range" min="0" max="100" value="26" data-i="2" class="bs"></div>
-      <div class="sr"><div class="top"><div class="nm">Retention <span>owned + referral + early access</span></div><div class="val"><span class="d" id="d3">$0</span> <span class="p" id="p3">0%</span></div></div><input type="range" min="0" max="100" value="6" data-i="3" class="bs"></div>
-      <div class="outs">
-        <div class="out"><div class="v" id="oNew">0</div><div class="l">new customers / mo</div></div>
-        <div class="out"><div class="v" id="oRev">$0</div><div class="l">new revenue / mo</div></div>
-        <div class="out"><div class="v" id="oMer">0x</div><div class="l">blended ROAS</div></div>
-        <div class="out"><div class="v" id="oCac">$0</div><div class="l">implied CAC</div></div>
-        <div class="out"><div class="v" id="oContrib">$0</div><div class="l">contribution after spend</div></div>
-        <div class="out"><div class="v" id="oReach">0</div><div class="l">est. reach / mo</div></div>
+      <div class="tbright">
+        <span class="chip">Klaviyo rev <b>$3,040</b></span>
+        <span class="chip live">● 18 queued</span>
       </div>
+    </header>
+
+    <div class="view-wrap">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section class="view on" id="v-overview">
+      <div class="hero">
+        <span class="eyebrow">Typical · growth execution</span>
+        <h1 class="disp">The growth engine, <em>in motion.</em></h1>
+        <p class="lede">Live execution across Klaviyo, Meta, Google, Amazon and Shopify. Week 1 is underway — the Klaviyo audit and the every-other-day send calendar, abandoned-cart and flow work, Planable and social, the Meta handover with Keelan, and the Amazon briefing for Optivations. Real numbers, baked in.</p>
+        <div class="herofoot">
+          <span class="chip"><b>$3,040</b> Klaviyo revenue 2026</span>
+          <span class="chip"><b>66%</b> avg open rate</span>
+          <span class="chip"><b>18</b> drafts on deck</span>
+        </div>
+      </div>
+
+      <div class="stats" id="ovStats"></div>
+
+      <h3 class="sec">Performance signal <span class="ln"></span></h3>
+      <div class="grid g2">
+        <div class="glass chartcard">
+          <div class="ch-h"><div class="ch-t">Klaviyo attributed revenue</div><div class="ch-s">Feb – Jun 2026</div></div>
+          <svg viewBox="0 0 520 220" id="revChart" style="width:100%;height:auto"></svg>
+          <div class="legend"><span><i style="background:var(--acc-2)"></i>Campaigns</span><span><i style="background:var(--violet)"></i>Flows</span></div>
+        </div>
+        <div class="glass chartcard">
+          <div class="ch-h"><div class="ch-t">Campaign vs flow mix</div><div class="ch-s">all-time attributed</div></div>
+          <div class="donut-wrap" style="margin-top:18px">
+            <svg viewBox="0 0 120 120" width="150" height="150" id="donut"></svg>
+            <div>
+              <div class="bigfig">$3,040</div>
+              <div class="dlabel" style="margin-top:10px"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--acc-2);margin-right:7px"></i>Campaigns <b>69%</b> · $2,091</div>
+              <div class="dlabel" style="margin-top:7px"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--violet);margin-right:7px"></i>Flows <b>31%</b> · $950</div>
+              <p class="note" style="margin-top:12px;max-width:30ch">Flows carried 100% of June so far — the new cadence is what re-fires campaigns.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sec">Strategic pillars <span class="ln"></span></h3>
+      <div class="grid g3" id="pillars"></div>
+    </section>
+
+    <!-- ===== EMAIL SCHEDULE ===== -->
+    <section class="view" id="v-schedule">
+      <span class="eyebrow">Week 1 deliverable</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">Send calendar — <em>every other day.</em></h1>
+      <p class="lede">Every prepared draft in Klaviyo, sequenced one every other day from today, <b>Mon 8 Jun</b>, through <b>Sun 12 Jul</b>. Sent campaigns excluded; seasonal and internal drafts parked. Drafts are built — this is the calendar to schedule against.</p>
+
+      <div class="cad" style="margin-top:24px">
+        <div class="seg"><div class="v">18</div><div class="l">Drafts scheduled</div></div>
+        <div class="seg"><div class="v">8 Jun</div><div class="l">First send · today</div></div>
+        <div class="seg"><div class="v">12 Jul</div><div class="l">Last send</div></div>
+        <div class="seg"><div class="v">6</div><div class="l">Collections</div></div>
+        <div class="seg"><div class="v">2d</div><div class="l">Cadence</div></div>
+      </div>
+
+      <div class="tbl-wrap" style="margin-top:16px">
+        <table class="dt"><thead><tr><th>#</th><th>Send</th><th>Campaign</th><th>Collection</th><th>Audience</th><th>Status</th></tr></thead><tbody id="schedBody"></tbody></table>
+      </div>
+
+      <h3 class="sec">Excluded from the cadence <span class="ln"></span></h3>
+      <div class="grid g2">
+        <div class="panel"><div class="kook">Already sent · live</div><ul class="flist">
+          <li>Campaign 01 · Offset Stripe — Petal Pink, Cabernet Burgundy, Moss Green</li>
+          <li>Campaign 06 · Two Tone (B Side) — Lilac, Studio Navy</li>
+          <li>US Mother's Day Launch · 26-05-04</li>
+          <li>CA Mother's Day Launch · 26-05-04</li>
+          <li>Sales Reps update · Jan 23</li>
+        </ul></div>
+        <div class="panel"><div class="kook">Parked drafts · out of cadence</div><ul class="flist">
+          <li><b>Mother's Day — May 4</b> · seasonal, date passed — re-slot next year</li>
+          <li><b>Campaign Mar 17</b> · Sales Reps, internal note</li>
+        </ul><p class="note">Parked, not deleted. Kept ready to re-slot when the moment fits.</p></div>
+      </div>
+    </section>
+
+    <!-- ===== PERFORMANCE ===== -->
+    <section class="view" id="v-perf">
+      <span class="eyebrow">Baked-in · Klaviyo data</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">What the numbers <em>actually say.</em></h1>
+      <p class="lede">Pulled straight from the monthly Klaviyo exports (Feb–Jun 2026). Opens are excellent; the gap is volume — March and April went dark, which is exactly what the new every-other-day cadence fixes.</p>
+
+      <div class="stats" id="perfStats" style="margin-top:24px"></div>
+
+      <h3 class="sec">Monthly revenue &amp; mix <span class="ln"></span></h3>
+      <div class="grid g2">
+        <div class="glass chartcard">
+          <div class="ch-h"><div class="ch-t">Attributed revenue by month</div><div class="ch-s">Jun partial (1–8)</div></div>
+          <svg viewBox="0 0 520 240" id="revChart2" style="width:100%;height:auto"></svg>
+          <div class="legend"><span><i style="background:var(--acc-2)"></i>Campaigns</span><span><i style="background:var(--violet)"></i>Flows</span></div>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="callout"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span><div><h5>Opens are well above benchmark</h5><p>Weighted ~66% open rate across sent campaigns vs an industry ~40%. The list is healthy and engaged — deliverability isn't the constraint.</p></div></div>
+          <div class="callout"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg></span><div><h5>The gap is volume, not quality</h5><p>March and April sent nothing — $0 attributed. With 18 drafts ready, the constraint is cadence. Every-other-day sends turn dormant months into compounding revenue.</p></div></div>
+          <div class="callout"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 17l6-6 4 4 6-6"/></svg></span><div><h5>Flows now carry the floor</h5><p>June is 100% flows so far ($643). Flows hold the baseline between campaigns — strengthening abandoned-cart and post-purchase compounds every send.</p></div></div>
+        </div>
+      </div>
+
+      <h3 class="sec">Sent campaign leaderboard <span class="ln"></span></h3>
+      <div class="tbl-wrap">
+        <table class="dt"><thead><tr><th>Campaign</th><th>Sent</th><th>Recipients</th><th>Open rate</th><th>Click rate</th><th>Revenue</th></tr></thead><tbody id="leaderBody"></tbody></table>
+      </div>
+      <p class="note">Open / click benchmarks shown as bars (open scaled to 80%, click to 12%). Revenue is Klaviyo-attributed conversion value.</p>
+    </section>
+
+    <!-- ===== TIMELINE ===== -->
+    <section class="view" id="v-timeline">
+      <span class="eyebrow">90-day shape</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">The plan, <em>week by week.</em></h1>
+      <p class="lede">Diagnosis is one focused sprint in week 1, then build through month 1. At the start of each month we stop to <b>analyze &amp; adjust</b> — read, reallocate, re-plan — before continuing.</p>
+      <div style="margin-top:24px"></div>
+      <div class="tl" id="tlWrap"></div>
+      <div class="pf-row" id="pfRow"></div>
+      <div class="tbl-wrap"><table class="dt"><thead><tr><th>Week</th><th>Dates</th><th>Phase</th><th>Focus</th><th>Targets</th></tr></thead><tbody id="weeksBody"></tbody></table></div>
+    </section>
+
+    <!-- ===== FUNNEL ===== -->
+    <section class="view" id="v-funnel">
+      <span class="eyebrow">Paid architecture</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">One funnel, <em>three platforms.</em></h1>
+      <p class="lede">Meta, Google and Amazon mapped across prospecting, retargeting and conversion. Tap any cell for the play — audiences, creative angle, and what I'd measure.</p>
+      <div class="mtx" style="margin-top:24px"><table><thead><tr>
+        <th class="rh" style="background:rgba(255,255,255,.02)">Channel / Stage</th>
+        <th>Prospecting<span class="s">reach people who don't know us</span></th>
+        <th>Retargeting<span class="s">bring interest back</span></th>
+        <th>Conversion<span class="s">close, lift AOV, keep</span></th>
+      </tr></thead><tbody id="mtxBody"></tbody></table></div>
+      <div id="cellDetail"></div>
+    </section>
+
+    <!-- ===== CREATIVE ===== -->
+    <section class="view" id="v-creative">
+      <span class="eyebrow">Creative direction</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">The creative <em>is the lever.</em></h1>
+      <p class="lede">On a performance team the creative does most of the targeting and most of the persuading. I own the direction on paid — the angle, the brief, what "on-brand and on-message" means — working with the creative team, not over them.</p>
+      <div class="grid g3" style="margin-top:24px">
+        <div class="glass pillar open" style="cursor:default"><div class="pn">Direction</div><h4>Sell the feeling</h4><div class="pd" style="max-height:none;opacity:1">Towels are bought on feel and looks. Make softness and the design POV tactile — the stretch as the scroll-stopper, colour as the hook — and keep every cut unmistakably Typical.</div></div>
+        <div class="glass pillar open" style="cursor:default"><div class="pn">Ownership</div><h4>Brief on intent</h4><div class="pd" style="max-height:none;opacity:1">I own the angle, the message hierarchy, and which concepts get budget. The team owns craft. Every concept ships with a tight brief: the job, the audience, the one thing it must land.</div></div>
+        <div class="glass pillar open" style="cursor:default"><div class="pn">The loop</div><h4>Numbers write the brief</h4><div class="pd" style="max-height:none;opacity:1">Each test feeds back — which hook held, which angle converted, which format earned its cost — into the next brief. Winners scale; losers are documented, not repeated.</div></div>
+      </div>
+      <h3 class="sec">The creative feedback loop <span class="ln"></span></h3>
+      <div class="flow"><div class="flow-in" id="creativeLoop"></div></div>
+    </section>
+
+    <!-- ===== EMAIL & SMS ===== -->
+    <section class="view" id="v-email">
+      <span class="eyebrow">Owned channel</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">The email <em>ecosystem.</em></h1>
+      <p class="lede">How traffic becomes an owned list, and how that list earns through one-time campaigns, the newsletter, and automated flows. The fastest payback in the plan, and where retention lives for a durable product.</p>
+      <div class="eco" style="margin-top:24px"><div class="eco-in">
+        <div class="eco-col"><div class="eco-h">Traffic in</div>
+          <div class="enode">Paid<span class="s">Meta · Google · Amazon · TikTok</span></div>
+          <div class="enode">Organic &amp; SEO<span class="s">Search, social, PR</span></div>
+          <div class="enode">Gifting &amp; referral<span class="s">Recipients become buyers</span></div>
+          <div class="enode">Campaigns<span class="s">Drops &amp; newsletter drive return visits</span></div>
+        </div>
+        <div class="eco-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
+        <div class="eco-col"><div class="eco-h">Capture</div>
+          <div class="enode cap">Pop-up &amp; welcome offer</div>
+          <div class="enode cap">Checkout opt-in</div>
+          <div class="enode cap">Waitlist / back-in-stock</div>
+          <div class="enode cap">SMS opt-in</div>
+        </div>
+        <div class="eco-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
+        <div class="eco-col"><div class="eco-h">The owned list</div>
+          <div class="ehub">Email + SMS list<span class="s">Segmented by lifecycle, behaviour, value &amp; engagement</span></div>
+          <div class="enode cmp">Newsletter base<span class="s">Engaged, kept warm between drops</span></div>
+        </div>
+        <div class="eco-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
+        <div class="eco-col"><div class="eco-h">Two engines</div>
+          <div class="lane cmp">Campaigns · one-time</div>
+          <div class="enode cmp">Newsletter<span class="s">Repeat, high-affinity</span></div>
+          <div class="enode cmp">Product drops<span class="s">High-intent, urgency</span></div>
+          <div class="enode cmp">Gifting &amp; editorial<span class="s">New + top-of-funnel</span></div>
+          <div class="lane flw">Flows · automated</div>
+          <div class="enode flw">Welcome · Browse · Cart<span class="s">Convert new traffic</span></div>
+          <div class="enode flw">Post-purchase · Set<span class="s">Lift AOV</span></div>
+          <div class="enode flw">Win-back · Gifting<span class="s">Bring lapsed back</span></div>
+        </div>
+        <div class="eco-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></div>
+        <div class="eco-col"><div class="eco-h">Produces</div>
+          <div class="enode out">First orders<span class="s">From captured traffic</span></div>
+          <div class="enode out">Bigger baskets<span class="s">Sets &amp; cross-sell</span></div>
+          <div class="enode out">Retention<span class="s">Durable-product loyalty</span></div>
+          <div class="enode out">Warm launch list<span class="s">Every drop opens to demand</span></div>
+        </div>
+      </div></div>
+      <p class="eco-loop"><b>The loop:</b> campaigns and the newsletter don't just monetise the list — they send engaged traffic back to the site, which paid and flows re-capture, which grows the list that makes the next campaign bigger.</p>
+
+      <h3 class="sec">Automated flows <span class="ln"></span></h3>
+      <div class="tbl-wrap"><table class="dt"><thead><tr><th>Flow</th><th>Trigger</th><th>Job</th><th>Channel</th></tr></thead><tbody id="flowBody"></tbody></table></div>
+
+      <h3 class="sec">Segmentation <span class="ln"></span></h3>
+      <div class="grid g2">
+        <div class="panel"><div class="kook">Who we send to</div><ul class="flist">
+          <li><b>Lifecycle</b> — non-buyer, one-time, repeat, lapsed, VIP / high-LTV</li>
+          <li><b>Behaviour</b> — category &amp; colour interest, set vs single, gifting buyers</li>
+          <li><b>Value</b> — predicted LTV &amp; AOV tiers for VIP and discount suppression</li>
+          <li><b>Engagement</b> — 30/60/90-day actives; sunset dormant to protect deliverability</li>
+          <li><b>Consent</b> — SMS-opted vs email-only, right message on the right rail</li>
+        </ul></div>
+        <div class="panel"><div class="kook">Where it meets paid</div><ul class="flist">
+          <li><b>Suppress</b> recent buyers from prospecting — stop paying twice</li>
+          <li><b>Seed</b> purchaser &amp; high-LTV as lookalike/advantage audiences</li>
+          <li><b>Hand off</b> abandoners to retargeting + flow together</li>
+          <li><b>Build</b> the list on every paid visit so each drop opens warm</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ===== BUDGET ===== -->
+    <section class="view" id="v-budget">
+      <span class="eyebrow">Illustrative model</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">Budget &amp; <em>pacing.</em></h1>
+      <p class="lede">A sample of how I'd split a monthly budget across the funnel and track pace through the month. Change the scenario or budget and everything recalculates.</p>
+      <div class="glass ctrlbar" style="margin-top:24px">
+        <div class="fld"><label>Monthly budget (USD)</label><input id="totBudget" type="number" value="50000" min="0" step="1000"></div>
+        <div class="fld"><label>Scenario</label><div class="seg2" id="scen"><button data-s="cons">Conservative</button><button class="on" data-s="base">Base</button><button data-s="agg">Aggressive</button></div></div>
+      </div>
+      <div class="grid g2">
+        <div class="glass" style="padding:22px">
+          <div class="kook">Allocation across the funnel</div>
+          <div class="srow"><div class="top"><div class="nm">Prospecting <span>Meta · TikTok · Amazon · non-brand</span></div><div class="val"><span class="d" id="d0">$0</span> <span class="p" id="p0">0%</span></div></div><input type="range" min="0" max="100" value="42" data-i="0" class="bs"></div>
+          <div class="srow"><div class="top"><div class="nm">Retargeting <span>Meta/Google/Amazon DSP</span></div><div class="val"><span class="d" id="d1">$0</span> <span class="p" id="p1">0%</span></div></div><input type="range" min="0" max="100" value="26" data-i="1" class="bs"></div>
+          <div class="srow"><div class="top"><div class="nm">Conversion <span>brand search, Shopping, CRO</span></div><div class="val"><span class="d" id="d2">$0</span> <span class="p" id="p2">0%</span></div></div><input type="range" min="0" max="100" value="26" data-i="2" class="bs"></div>
+          <div class="srow"><div class="top"><div class="nm">Retention <span>owned + referral</span></div><div class="val"><span class="d" id="d3">$0</span> <span class="p" id="p3">0%</span></div></div><input type="range" min="0" max="100" value="6" data-i="3" class="bs"></div>
+          <div class="outs">
+            <div class="out"><div class="v" id="oNew">0</div><div class="l">new customers / mo</div></div>
+            <div class="out"><div class="v" id="oRev">$0</div><div class="l">new revenue / mo</div></div>
+            <div class="out"><div class="v" id="oRoas">0x</div><div class="l">blended ROAS</div></div>
+            <div class="out"><div class="v" id="oCac">$0</div><div class="l">implied CAC</div></div>
+            <div class="out"><div class="v" id="oContrib">$0</div><div class="l">contribution</div></div>
+            <div class="out"><div class="v" id="oReach">0</div><div class="l">est. reach</div></div>
+          </div>
+        </div>
+        <div class="glass" style="padding:22px">
+          <div class="kook">Indicative channel split</div>
+          <div id="chSplit"></div>
+          <div class="kook" style="margin-top:24px">Pacing tracker — sample month</div>
+          <svg viewBox="0 0 520 200" id="paceSvg" style="width:100%;height:auto"></svg>
+          <p class="note" id="paceNote"></p>
+        </div>
+      </div>
+      <p class="note"><b>Base assumptions:</b> $14 CPM prospecting; blended CAC $40; AOV $82; 62% gross margin (~$50.80 contribution/order). Conservative/aggressive flex CAC & ROAS ±15%. Replace with live numbers and this becomes a real pacing tool.</p>
+    </section>
+
+    <!-- ===== REPORTING ===== -->
+    <section class="view" id="v-reporting">
+      <span class="eyebrow">Automation</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">Reporting that <em>runs itself.</em></h1>
+      <p class="lede">The team should spend time deciding, not pulling numbers. An automated workflow gathers data from each platform, does the maths, and pushes it to a dashboard and a Slack summary. Pacing and problems surface on their own.</p>
+      <div class="ftoggle" id="flowToggle" style="margin-top:24px"><button class="on" data-f="weekly">Weekly flow</button><button data-f="monthly">Monthly flow</button></div>
+      <div class="flow"><div class="flow-in" id="repFlow"></div></div>
+      <p class="note" id="repCap" style="max-width:80ch"></p>
+    </section>
+
+    <!-- ===== PROJECTS ===== -->
+    <section class="view" id="v-projects">
+      <span class="eyebrow">Team execution</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">Projects &amp; <em>tasks.</em></h1>
+      <p class="lede">The work I'd set up for the team, week by week from 8 June. Grouped by workstream, each week with the feedback loop that keeps it honest. Tap a week to open.</p>
+      <div id="projList" style="margin-top:24px"></div>
+    </section>
+
+    <!-- ===== EXTRAS ===== -->
+    <section class="view" id="v-extras">
+      <span class="eyebrow">The rest of the mix</span>
+      <h1 class="disp" style="font-size:clamp(1.8rem,3.8vw,2.7rem)">Channels that <em>compound.</em></h1>
+      <p class="lede">Plays that sit alongside the core three — where they fit and how I'd sequence them so they add rather than distract.</p>
+      <div class="grid g2" id="extras" style="margin-top:24px"></div>
+      <p class="disc">Prepared for Typical · growth execution dashboard, week 1 · 8 Jun 2026. Klaviyo figures are real (Feb–Jun 2026 exports). Budget, funnel and timeline targets are working models to pressure-test against live data.</p>
+    </section>
+
     </div>
-    <div class="panel">
-      <span class="sec-label">Indicative channel split</span>
-      <div class="channel-split" id="channelSplit"></div>
-      <p class="note" style="border:none;padding-top:14px">Channel shares are a sensible starting point, not a fixed rule. I'd let the contribution-margin reporting move money toward whatever's actually paying back, and re-pace weekly.</p>
-    </div>
   </div>
-
-  <div class="pacing-card">
-    <span class="sec-label">Pacing tracker — sample month</span>
-    <svg viewBox="0 0 720 240" class="pacing-svg" id="paceSvg"></svg>
-    <div class="pace-legend">
-      <span><span class="sw" style="background:#6E6A61"></span> Ideal even pace</span>
-      <span><span class="sw" style="background:#F0531E"></span> Actual spend to date</span>
-      <span><span class="sw" style="background:#2F5E8C;height:8px;width:8px"></span> Today (day 18)</span>
-    </div>
-    <p class="pace-note" id="paceNote"></p>
-  </div>
-
-  <div class="panel" style="margin-top:16px">
-    <span class="sec-label">Model assumptions</span>
-    <p class="note" style="border:none;padding-top:0"><b>Base scenario:</b> $14 CPM for prospecting reach; blended CAC $40 on prospecting + retargeting + conversion spend; AOV $82; gross margin 62%, so roughly $50.80 contribution per order before acquisition cost; retention spend excluded from new-customer math. Conservative widens CAC and softens ROAS by about 15%; Aggressive tightens them by about 15%. Because the product is durable, payback needs to land near the first order, which is why contribution margin sits next to ROAS everywhere. Replace with Typical's real numbers in week one and this becomes a live pacing tool.</p>
-  </div>
-</section>
-
-<!-- ============ REPORTING & n8n ============ -->
-<section class="view" id="v-reporting">
-  <div class="vh">
-    <h1>Reporting, and the automation behind it.</h1>
-    <p>I'd rather the team spend time deciding things than pulling numbers, so the reporting runs itself. Here's a sample of how an automated workflow would gather data from each platform, do the maths, and push it into a dashboard and a Slack summary, plus a mockup of what that dashboard would show. Switch between the weekly and monthly flows.</p>
-  </div>
-
-  <div class="flow-toggle" id="flowToggle">
-    <button class="active" data-fl="weekly">Weekly flow</button>
-    <button data-fl="monthly">Monthly flow</button>
-  </div>
-  <div class="flow"><div class="flow-inner" id="flowInner"></div></div>
-  <p class="flow-cap" id="flowCap"></p>
-
-  <h2 class="block">What the dashboard would show</h2>
-  <div class="mock">
-    <div class="mock-head"><span class="mt">Typical · Performance — week of 22 Jun 2026</span><span class="md">auto-generated · refreshed daily 7:00 PT</span></div>
-    <div class="mock-kpis">
-      <div class="mk"><div class="v">$11.6K</div><div class="l">Spend</div></div>
-      <div class="mk"><div class="v">3.1x <small>▲</small></div><div class="l">Blended ROAS</div></div>
-      <div class="mk"><div class="v">$38 <small>▼</small></div><div class="l">CAC</div></div>
-      <div class="mk"><div class="v">41% <small>▲</small></div><div class="l">Contrib. margin</div></div>
-      <div class="mk"><div class="v">$89</div><div class="l">AOV</div></div>
-      <div class="mk"><div class="v">2.4%</div><div class="l">CVR</div></div>
-    </div>
-    <div class="mock-charts">
-      <div class="chart-box"><div class="ct">Revenue vs spend — last 8 weeks</div><svg viewBox="0 0 380 160" id="mockTrend" style="width:100%;height:auto"></svg></div>
-      <div class="chart-box"><div class="ct">Revenue by channel</div><svg viewBox="0 0 260 160" id="mockBars" style="width:100%;height:auto"></svg></div>
-    </div>
-  </div>
-  <p class="note">The same data feeds the weekly pacing view, the monthly contribution and cohort view, and an alert if any channel's CAC or pacing drifts past a threshold. The founders see what I see, on the same numbers, without anyone building a deck.</p>
-</section>
-
-<!-- ============ PROJECT PLAN ============ -->
-<section class="view" id="v-project">
-  <div class="vh">
-    <h1>Projects &amp; tasks for the team.</h1>
-    <p>The projects and tasks I'd set up for the team, week by week from Wednesday 3 June 2026. Grouped by workstream so it's clear what runs in parallel, and each week names the feedback loop that keeps it honest. Tap a week to open it. The later weeks compress as the work shifts from setup to running the engine.</p>
-  </div>
-  <div id="projectList"></div>
-</section>
-
-<!-- ============ EXTRAS ============ -->
-<section class="view" id="v-extras">
-  <div class="vh">
-    <h1>The rest of the mix.</h1>
-    <p>Channels and plays that sit alongside the core three: where they fit, and how I'd sequence them so they add rather than distract.</p>
-  </div>
-
-  <div class="ex-card">
-    <div class="et">TikTok Ads</div>
-    <h3>Where the product gets to show off</h3>
-    <p>The stretch is the kind of thing that stops a scroll, and TikTok rewards native, creator-made video over polished ads. I'd start with Spark Ads boosting organic and creator posts that already perform, keep budget modest until something earns more, and pull the winners into the wider paid mix. It doubles as a cheap creative testing ground for hooks I can reuse on Meta.</p>
-    <ul><li>Spark Ads on top organic and creator content first</li><li>Treat it as a hook-testing lab, not just a spend line</li><li>Scale only what beats Meta on cost per result</li></ul>
-  </div>
-
-  <div class="ex-card">
-    <div class="et">Influencer &amp; affiliate</div>
-    <h3>Seed, then whitelist, then pay on performance</h3>
-    <p>Send product to people whose taste genuinely fits the brand and see who posts unprompted. The ones who perform get whitelisted so their content runs as paid from their handle, which usually beats brand-account ads. A simple affiliate program gives them a reason to keep posting, and keeps the cost tied to actual sales rather than flat fees.</p>
-    <ul><li>Gifting list built around design and home creators</li><li>Whitelisting the top performers into paid social</li><li>Affiliate codes so spend follows results</li></ul>
-  </div>
-
-  <div class="ex-card">
-    <div class="et">Email &amp; SMS · Klaviyo and Postscript</div>
-    <h3>The fastest payback in the plan</h3>
-    <p>My read is the brand captures emails well but the automated flows are thin, which is usually money sitting on the table. The flows below come first because they earn while everything else is still being built, and they're where retention actually lives for a product people don't reorder often.</p>
-    <ul><li>Welcome series that earns the signup in the brand's voice</li><li>Abandoned browse, cart, and checkout</li><li>Post-purchase care and cross-sell to the full set</li><li>Win-back and lapsed-buyer</li><li>Early access for the next drop, building the launch list</li></ul>
-  </div>
-
-  <div class="ex-card">
-    <div class="et">New product launch workflow</div>
-    <h3>A repeatable way to launch the next colour, set, or category</h3>
-    <p>Typical will keep dropping new things, so the launch should run on a process rather than a scramble. This is the sequence I'd document and reuse, tightening it each time based on what the last launch taught us.</p>
-    <div class="launch">
-      <div class="lstep"><div class="ls-n">1 · Tease</div><div class="ls-t">Build the list</div><div class="ls-d">Waitlist and early-access signups, organic teasers, creator seeding before anything's for sale.</div></div>
-      <div class="lstep"><div class="ls-n">2 · Prime</div><div class="ls-t">Warm the audience</div><div class="ls-d">Email and SMS to the list, PR and creator content landing, retargeting set up and waiting.</div></div>
-      <div class="lstep"><div class="ls-n">3 · Launch</div><div class="ls-t">Open to warm demand</div><div class="ls-d">List goes first, paid switches on across Meta, Google, Amazon, listings and PDPs ready to convert.</div></div>
-      <div class="lstep"><div class="ls-n">4 · Amplify</div><div class="ls-t">Scale what works</div><div class="ls-d">Push budget to the best creative and channels, whitelist top creator posts, watch contribution margin.</div></div>
-      <div class="lstep"><div class="ls-n">5 · Sustain</div><div class="ls-t">Retarget &amp; restock</div><div class="ls-d">Convert the considerers, manage stock with ops, fold the drop into evergreen and the next launch list.</div></div>
-    </div>
-  </div>
-
-  <div class="ex-card">
-    <div class="et">SEO fundamentals</div>
-    <h3>Quiet, compounding, worth starting day one</h3>
-    <p>Two surfaces. On Shopify, fix indexation, build category content that answers what people actually search before they know the brand, and earn the term over time. On Amazon, get titles, bullets, A+ content, and backend keywords right so listings rank and convert on-platform. Neither pays off this quarter, which is exactly why I'd start now rather than later.</p>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <span>Typical · growth execution dashboard · week 1 · updated 8 Jun 2026</span>
-  <span>Placeholders replaced with live data as week 1 lands</span>
-</footer>
+</div>
 
 <script>
-/* ============ DATA ============ */
-const rocks=[
- {n:"01",t:"Get the numbers honest first",why:"Foundation",d:"Before scaling anything, get reporting onto contribution margin and payback, not just ROAS, and agree a baseline with the founders. Everything after this depends on trusting the data, and a durable-goods brand that mis-measures will either overspend or starve growth."},
- {n:"02",t:"Own the category in search",why:"Google + Amazon",d:"Cover the brand name, then go after the unbranded 'best bath towels' demand on both Google and Amazon before a competitor does. This is the cheapest, highest-intent demand available and it's largely uncontested right now."},
- {n:"03",t:"Build the full-funnel engine",why:"Meta · Google · Amazon",d:"One funnel across three platforms with a clean account structure and a steady creative testing system. Prospecting to build demand, retargeting to recover it, conversion to close. Get this running on clean tracking and it becomes the thing we scale."},
- {n:"04",t:"Grow the owned audience",why:"Klaviyo + Postscript",d:"Capture is strong, flows are thin. Rebuilding email and SMS is the fastest payback in the plan and it's where retention lives for a product people don't reorder often. It also makes every future launch cheaper."},
- {n:"05",t:"Lift AOV through sets",why:"The durable-goods lever",d:"Since people won't reorder towels monthly, the order has to be bigger. Build-your-set bundles, gifting, and the free-shipping threshold doing real work. This is the most defensible growth lever we have and the hardest for a copycat to match."},
- {n:"06",t:"Make launches repeatable",why:"For what comes next",d:"New colours and categories are coming, so the launch needs to run on a documented process the company owns, not on me being in the room. Each launch should open to a warm list and teach us something for the next one."}
-];
-
-const matrix={
- Meta:{
-  prospecting:{ch:"Build demand at the top",cs:"Broad + lookalikes, stretch-demo video",det:{
-    head:"Meta · Prospecting", angle:"Lead with the stretch demo and the founder story. The product doing something surprising is what stops the scroll, and Meta's strength is putting that in front of people who weren't looking.",
-    audiences:["Broad, let the algorithm find buyers","Lookalikes from purchasers and high-LTV","Design, home, and gifting interest sets as a test"],
-    creative:["Stretch demo (hook test)","UGC and creator cuts","Editorial brand film for the patient audience"],
-    measure:["CPM and cost per result","Hook rate / 3-sec views","New-visitor sessions","Branded search lift"]}},
-  retargeting:{ch:"Recover the interested",cs:"Segmented by depth, social proof + sets",det:{
-    head:"Meta · Retargeting", angle:"Most people need a second or third touch on a considered purchase. Match the message to how far they got, and bring proof and sets to the people who hesitated.",
-    audiences:["Viewed product","Added to cart","Engaged with content, didn't visit"],
-    creative:["Reviews and social proof","Build-your-set / complete the bathroom","Free-shipping-over-$100 nudge"],
-    measure:["Retargeting ROAS","Add-to-cart rate","Frequency (so we don't fatigue)"]}},
-  conversion:{ch:"Close & keep",cs:"Dynamic product, post-purchase suppression",det:{
-    head:"Meta · Conversion & retention", angle:"Dynamic product ads for the warmest segments, and suppress recent buyers so we're not paying to reach people who just purchased. Feed buyers into lookalike seeds and into the owned channels.",
-    audiences:["Checkout started, didn't finish","Recent buyers (suppressed from prospecting)","Purchasers as lookalike seed"],
-    creative:["Dynamic catalogue","Cross-sell to new colours / sets","Gifting at seasonal moments"],
-    measure:["CAC","Contribution margin / order","AOV","Cross-sell rate"]}}
- },
- Google:{
-  prospecting:{ch:"Catch early intent",cs:"Non-brand search, Shopping, Demand Gen",det:{
-    head:"Google · Prospecting", angle:"Capture people typing the category before they know us, and use Shopping and Demand Gen to show the product against generic results. This is where the unbranded demand the strategy is built on actually shows up.",
-    audiences:["Non-brand category terms ('best bath towels', 'soft quick-dry towels')","Shopping / PMax against generic listings","Demand Gen for broader reach"],
-    creative:["Strong product imagery in Shopping","Category-answer landing pages","Clear price and free-shipping line"],
-    measure:["Non-brand impression share","CPA","Click-through rate","New sessions"]}},
-  retargeting:{ch:"Stay in view",cs:"RLSA, display retargeting",det:{
-    head:"Google · Retargeting", angle:"Keep the brand in front of people who visited but didn't buy, and bid harder on search when a past visitor comes back looking again.",
-    audiences:["Site visitors, by page depth","Cart abandoners","Past searchers (RLSA bid-ups)"],
-    creative:["Display retargeting with sets","Search ads that answer hesitation","Review extensions"],
-    measure:["Retargeting ROAS","Assisted conversions","View-through"]}},
-  conversion:{ch:"Defend & convert",cs:"Branded search, full coverage",det:{
-    head:"Google · Conversion", angle:"Cover the brand name completely first, since PR and social send people searching and that traffic converts cheaply. Then make sure Shopping and PMax are closing the high-intent clicks.",
-    audiences:["Brand-term searchers","High-intent product searchers","Shopping / PMax"],
-    creative:["Brand search with sitelinks to sets","Promotion extensions for gifting","Merchant reviews"],
-    measure:["Brand impression share","Conversion rate","CAC","ROAS"]}}
- },
- Amazon:{
-  prospecting:{ch:"Win the search nobody owns",cs:"Sponsored Products & Brands",det:{
-    head:"Amazon · Prospecting", angle:"A lot of towel buying starts on Amazon, and the category there is mostly commodity. Sponsored Products and Brands let us show up against generic search with an actual brand, which almost nobody else is doing.",
-    audiences:["Category and generic keywords","Competitor and commodity-listing targeting","In-market / category audiences"],
-    creative:["Clean, on-brand main images","Sponsored Brands with the brand story","Video where it's allowed"],
-    measure:["ACOS / TACOS","Share of voice","Organic rank lift","New-to-brand orders"]}},
-  retargeting:{ch:"Follow viewers",cs:"Amazon DSP once volume allows",det:{
-    head:"Amazon · Retargeting", angle:"Once there's enough volume to justify it, DSP retargets people who viewed but didn't buy, on and off Amazon. Until then, the budget is better spent winning the search.",
-    audiences:["Detail-page viewers, no purchase","Add-to-cart, no purchase","Category viewers"],
-    creative:["DSP display with product and proof","Set and bundle messaging"],
-    measure:["DSP ROAS","View-to-purchase","New-to-brand %"]}},
-  conversion:{ch:"Convert & defend the listing",cs:"Listing quality + brand defense",det:{
-    head:"Amazon · Conversion & retention", angle:"The ad spend only converts if the listing does, so listing quality comes first: images, A+ content, reviews. Defend the brand term so competitors can't bid in front of us, and use Subscribe-where-relevant and the brand store to deepen the relationship.",
-    audiences:["Brand-term searchers (defense)","Listing visitors","Brand store traffic"],
-    creative:["A+ content and brand store","Strong review base","Bundle / multipack listings"],
-    measure:["Listing conversion rate","Brand-term ACOS","Review velocity","Repeat / multipack rate"]}}
- }
+/* ============ ICONS ============ */
+const I={
+ overview:'<path d="M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-5H4z"/>',
+ schedule:'<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4M8 14h3"/>',
+ perf:'<path d="M3 12h3l3 7 4-14 3 9h5"/>',
+ timeline:'<path d="M5 4v16M5 7h11l-2.5 3L16 13H5"/>',
+ funnel:'<path d="M3 4h18l-7 8v6l-4 2v-8z"/>',
+ creative:'<path d="M12 3l1.8 4.6L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.4z"/><path d="M18 14l.9 2.3L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.7z"/>',
+ email:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/>',
+ budget:'<path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="2.2" fill="var(--bg)"/><circle cx="15" cy="12" r="2.2" fill="var(--bg)"/><circle cx="8" cy="18" r="2.2" fill="var(--bg)"/>',
+ reporting:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ projects:'<path d="M9 5h11M9 12h11M9 19h11"/><path d="M4 5l1.2 1.2L7 4M4 12l1.2 1.2L7 10M4 19l1.2 1.2L7 17"/>',
+ extras:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>'
 };
-const chanOrder=["Meta","Google","Amazon"];
-const stageOrder=["prospecting","retargeting","conversion"];
-const chanSub={Meta:"Demand + social",Google:"Search + Shopping",Amazon:"Marketplace + DSP"};
+function svg(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
 
-const weeks=[
- {w:"Week 1",dt:"3–7 Jun",ph:0,focus:"Diagnosis sprint — audit everything in one week",tgt:"All accounts accessed · full Meta/Google/Amazon/Shopify audit · tracking gaps + baselines (CAC, AOV, CVR) set"},
- {w:"Week 2",dt:"8–14 Jun",ph:1,focus:"Build — fix leaks, stand up reporting",tgt:"Contribution-margin reporting live · cart + brand-search leaks fixed · Amazon listing fixes started"},
- {w:"Week 3",dt:"15–21 Jun",ph:1,focus:"Build — owned + creative foundations",tgt:"Email/SMS flow rebuild started · creative testing framework agreed with the team"},
- {w:"Week 4",dt:"22–28 Jun",ph:1,focus:"Build — first tests live",tgt:"First Meta + Amazon test batches live · top CRO tests running on clean tracking"},
- {w:"Week 5",dt:"29 Jun–5 Jul",ph:3,focus:"Analyze & adjust — start of month 2",tgt:"Month-1 read · reallocate budget on contribution margin · month-2 build plan set before continuing"},
- {w:"Week 6",dt:"6–12 Jul",ph:1,focus:"Build — scale the early winners",tgt:"Core flows + key segments live · campaign calendar running · winning creative scaled"},
- {w:"Week 7",dt:"13–19 Jul",ph:1,focus:"Build — widen the channels",tgt:"Non-brand Google + TikTok tests live · bundle / build-your-set tests on PDP + cart"},
- {w:"Week 8",dt:"20–26 Jul",ph:1,focus:"Build — deepen what works",tgt:"Second creative batch live · retargeting + owned flows tuned on data"},
- {w:"Week 9",dt:"27 Jul–2 Aug",ph:3,focus:"Analyze & adjust — start of month 3",tgt:"Month-2 read · reallocate on payback · month-3 scale plan set before continuing"},
- {w:"Week 10",dt:"3–9 Aug",ph:2,focus:"Scale — fund winners, set pacing rules",tgt:"Budget weighted to best contribution margin · pacing rules + guardrails set"},
- {w:"Week 11",dt:"10–16 Aug",ph:2,focus:"Scale — monthly reporting + cohorts",tgt:"Automated monthly flow live · first cohort + payback view shared"},
- {w:"Week 12",dt:"17–23 Aug",ph:2,focus:"Scale — write the launch playbook",tgt:"Repeatable launch process documented · next-drop list building"},
- {w:"Week 13",dt:"24–31 Aug",ph:2,focus:"Scale — 90-day readout + next quarter",tgt:"Results readout · 6–12 month plan + budget ask · team / agency recommendation"}
+const NAV=[
+ ['overview','Overview','Growth command'],
+ ['schedule','Email Schedule','Klaviyo cadence'],
+ ['perf','Performance','Klaviyo data'],
+ ['timeline','Timeline','90-day shape'],
+ ['funnel','Full Funnel','Paid architecture'],
+ ['creative','Creative & CRO','Direction + tests'],
+ ['email','Email & SMS','Owned ecosystem'],
+ ['budget','Budget & Pacing','Allocation model'],
+ ['reporting','Reporting','Automation'],
+ ['projects','Projects & Tasks','Team execution'],
+ ['extras','Extras','The wider mix']
 ];
-
-const cro=[
- {surface:"Landing",hyp:"Lead the homepage with the stretch demo video above the fold",metric:"CVR",ice:8.3},
- {surface:"Landing",hyp:"Dedicated 'why your towel matters' category page for non-brand traffic",metric:"CVR / bounce",ice:7.4},
- {surface:"PDP",hyp:"Add reviews and social proof high on the product page",metric:"Add-to-cart",ice:8.6},
- {surface:"PDP",hyp:"'Build your set' module to push multi-item orders",metric:"AOV",ice:8.9},
- {surface:"PDP",hyp:"Surface the certifications (OEKO-TEX, 630 GSM) as trust badges",metric:"CVR",ice:6.8},
- {surface:"Cart",hyp:"Progress bar toward the $100 free-shipping threshold",metric:"AOV",ice:8.1},
- {surface:"Cart",hyp:"Add gifting option (note + gift receipt) at checkout",metric:"AOV / gifting",ice:6.5},
- {surface:"Cart",hyp:"Fix and simplify the mobile checkout flow",metric:"Checkout CVR",ice:9.0},
- {surface:"Amazon",hyp:"Rebuild main images and A+ content to on-brand standard",metric:"Listing CVR",ice:8.7},
- {surface:"Amazon",hyp:"Multipack / set listing to lift basket on Amazon",metric:"AOV",ice:7.2},
- {surface:"Amazon",hyp:"Optimise title + backend keywords for category rank",metric:"Organic rank",ice:7.8}
-];
-
-const flows={
- weekly:{
-  cols:[
-   [{c:"trig",i:"⏱",t:"Schedule",d:"Every Monday 6:00 PT"}],
-   [{c:"src",i:"M",t:"Meta Ads API",d:"Spend, results, ROAS"},{c:"src",i:"G",t:"Google Ads API",d:"Spend, conv, CPA"},{c:"src",i:"A",t:"Amazon Ads API",d:"Spend, ACOS, sales"},{c:"src",i:"S",t:"Shopify",d:"Orders, revenue, AOV"}],
-   [{c:"",i:"⤵",t:"Merge",d:"Combine all sources"}],
-   [{c:"",i:"ƒ",t:"Compute",d:"Blended ROAS, CAC, pacing vs budget"}],
-   [{c:"",i:"?",t:"Check thresholds",d:"Flag CAC / pacing drift"}],
-   [{c:"out",i:"#",t:"Slack summary",d:"Posted to #growth"},{c:"out",i:"▤",t:"Dashboard",d:"Weekly view refreshed"}]
-  ],
-  cap:"The weekly flow runs every Monday morning. It pulls spend and results from each ad platform plus orders from Shopify, blends them into the metrics that matter, checks whether any channel's cost or pace has drifted past a threshold, and posts a short summary to Slack while refreshing the dashboard. The point is that pacing and problems surface on their own, so the week starts with decisions rather than data-pulling."
- },
- monthly:{
-  cols:[
-   [{c:"trig",i:"⏱",t:"Schedule",d:"1st of month 6:00 PT"}],
-   [{c:"src",i:"M",t:"Ad platforms",d:"Meta · Google · Amazon"},{c:"src",i:"S",t:"Shopify",d:"Orders, cohorts"},{c:"src",i:"K",t:"Klaviyo / Postscript",d:"Owned revenue"},{c:"src",i:"4",t:"GA4",d:"Traffic, attribution"}],
-   [{c:"",i:"⤵",t:"Merge",d:"All sources, full month"}],
-   [{c:"",i:"ƒ",t:"Compute",d:"Contribution margin, LTV, payback, channel contribution"}],
-   [{c:"",i:"▦",t:"Cohort build",d:"By acquisition month"}],
-   [{c:"out",i:"▤",t:"Dashboard",d:"Monthly view"},{c:"out",i:"✉",t:"Email report",d:"To founders"},{c:"out",i:"≡",t:"Google Sheet",d:"Archive + finance"}]
-  ],
-  cap:"The monthly flow goes deeper. It adds owned-channel revenue and GA4, builds cohorts by acquisition month, and works out contribution margin, LTV, payback, and what each channel really contributed once margin is accounted for. It writes a dashboard view, emails the founders a summary, and archives the numbers to a sheet finance can use. This is the view that answers whether we're building something profitable, not just busy."
- }
-};
-
-/* ============ TABS ============ */
-const tb=[...document.querySelectorAll('#tabs button')];
-const views={overview:'v-overview',schedule:'v-schedule',plan:'v-plan',funnel:'v-funnel',cro:'v-cro',email:'v-email',budget:'v-budget',reporting:'v-reporting',project:'v-project',extras:'v-extras'};
-function show(v){
-  tb.forEach(b=>b.classList.toggle('active',b.dataset.v===v));
-  Object.entries(views).forEach(([k,id])=>document.getElementById(id).classList.toggle('active',k===v));
-  if(v==='overview')counters();
+const navEl=document.getElementById('nav');
+navEl.innerHTML=NAV.map((n,i)=>`<button class="navbtn ${i===0?'on':''}" data-v="${n[0]}">${svg(I[n[0]])}<span class="lab">${n[1]}</span><span class="nn">${String(i+1).padStart(2,'0')}</span></button>`).join('');
+const viewMap={overview:'v-overview',schedule:'v-schedule',perf:'v-perf',timeline:'v-timeline',funnel:'v-funnel',creative:'v-creative',email:'v-email',budget:'v-budget',reporting:'v-reporting',projects:'v-projects',extras:'v-extras'};
+const seen={};
+function go(v){
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  Object.entries(viewMap).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',k===v));
+  const meta=NAV.find(n=>n[0]===v);
+  document.getElementById('crumbTitle').textContent=meta[1];
+  document.getElementById('crumbSub').textContent=meta[2];
+  document.getElementById('crumbIcon').innerHTML=svg(I[v]);
+  if(v==='overview'&&!seen.ov){counters('#ovStats');seen.ov=1;}
+  if(v==='perf'&&!seen.pf){counters('#perfStats');seen.pf=1;}
   if(v==='budget'){recalc();drawPace();}
-  if(v==='reporting'){drawMock();}
   window.scrollTo({top:0,behavior:'smooth'});
 }
-tb.forEach(b=>b.addEventListener('click',()=>show(b.dataset.v)));
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.v)));
+document.getElementById('crumbIcon').innerHTML=svg(I.overview);
 
-/* counters */
-function counters(){document.querySelectorAll('#kpis .v').forEach(el=>{
-  const to=parseFloat(el.dataset.to),pre=el.dataset.pre||'',suf=el.dataset.suf||'',dec=(to%1!==0)?1:0;let s=null;
-  function step(t){if(!s)s=t;const p=Math.min((t-s)/950,1),e=1-Math.pow(1-p,3);el.textContent=pre+(to*e).toFixed(dec)+suf;if(p<1)requestAnimationFrame(step);}
+/* ============ COUNTERS ============ */
+function counters(scope){document.querySelectorAll(scope+' .stat-num').forEach(el=>{
+  const to=parseFloat(el.dataset.to),pre=el.dataset.pre||'',suf=el.dataset.suf||'',dec=el.dataset.dec?+el.dataset.dec:0;let s=null;
+  function step(t){if(!s)s=t;const p=Math.min((t-s)/1000,1),e=1-Math.pow(1-p,3);
+    el.textContent=pre+(to*e).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;
+    if(p<1)requestAnimationFrame(step);}
   requestAnimationFrame(step);});}
+function statTile(ic,to,pre,suf,dec,label,delta,dcls){
+  return `<div class="stat"><div class="glow"></div><div class="ic">${svg(ic)}</div>
+   <div class="v"><span class="stat-num" data-to="${to}" data-pre="${pre||''}" data-suf="${suf||''}" data-dec="${dec||0}">${pre||''}0${suf||''}</span></div>
+   <div class="l">${label}</div>${delta?`<div class="d ${dcls||''}">${delta}</div>`:''}</div>`;
+}
+document.getElementById('ovStats').innerHTML=[
+ statTile(I.perf,3040,'$','',0,'Klaviyo revenue · 2026','▲ Feb–Jun attributed'),
+ statTile(I.email,66,'','%',0,'Avg open rate','▲ vs ~40% benchmark'),
+ statTile('<path d="M4 17l6-6 4 4 6-6"/>',5.4,'','%',1,'Avg click rate','▲ vs ~1.8% benchmark'),
+ statTile(I.schedule,18,'','',0,'Drafts queued','● cadence live','flat'),
+ statTile('<path d="M22 12A10 10 0 1 1 12 2"/><path d="M22 4 12 14l-3-3"/>',5,'','',0,'Campaigns sent','3 dormant months','warnc')
+].join('');
+document.getElementById('perfStats').innerHTML=[
+ statTile(I.perf,3040,'$','',0,'Revenue to date','Feb + May + Jun'),
+ statTile(I.email,66,'','%',0,'Weighted open rate','▲ above benchmark'),
+ statTile('<path d="M4 17l6-6 4 4 6-6"/>',5.4,'','%',1,'Weighted click rate','▲ above benchmark'),
+ statTile(I.projects,576,'','',0,'Recipients reached','across 5 sends')
+].join('');
 
-/* rocks */
-document.getElementById('rocks').innerHTML=rocks.map((r,i)=>`
-  <div class="rock" data-i="${i}"><div class="rn">${r.n}</div><h3>${r.t}</h3><div class="why">${r.why}</div>
-  <div class="det"><p>${r.d}</p></div></div>`).join('');
-document.querySelectorAll('#rocks .rock').forEach(el=>el.addEventListener('click',()=>el.classList.toggle('open')));
+/* ============ PILLARS ============ */
+const pillars=[
+ ['01','Volume on a cadence','The fix','March and April sent nothing. With 18 drafts ready, the lever is simply sending — one every other day turns dormant months into compounding revenue.'],
+ ['02','Own the category in search','Google + Amazon','Cover the brand, then the unbranded "best bath towels" demand on both engines before a competitor does. Cheapest, highest-intent demand available.'],
+ ['03','Lift AOV through sets','Durable-goods lever','People won’t reorder towels monthly, so the order must be bigger. Build-your-set bundles, gifting, and the free-shipping threshold doing real work.'],
+ ['04','Make launches repeatable','For what’s next','New colours and categories are coming. The launch runs on a documented process that opens to a warm list — not on me being in the room.']
+];
+document.getElementById('pillars').innerHTML=pillars.map((p,i)=>`<div class="glass pillar" data-i="${i}"><div class="pn">${p[0]}</div><h4>${p[1]}</h4><div class="pw">${p[2]}</div><div class="pd">${p[3]}</div><div class="more">Read +</div></div>`).join('');
+document.querySelectorAll('#pillars .pillar').forEach(el=>el.addEventListener('click',()=>el.classList.toggle('open')));
 
-/* 30-60-90 weeks */
-function renderWeeks(filter){
-  document.getElementById('weeksBody').innerHTML=weeks.map(w=>{
-    const hide=(filter!=='all'&&String(w.ph)!==filter)?'hide':'';
-    const phn=['Diagnose','Build','Scale','Analyze & adjust'][w.ph];
-    return `<tr class="wk-row ${hide}"><td class="wk">${w.w}</td><td class="dt">${w.dt}</td><td><span class="ph-tag ph${w.ph}">${phn}</span></td><td>${w.focus}</td><td class="tgt">${w.tgt}</td></tr>`;
-  }).join('');
+/* ============ CHARTS ============ */
+const months=[{m:'Feb',camp:1166.92,flow:0},{m:'Mar',camp:0,flow:0},{m:'Apr',camp:0,flow:0},{m:'May',camp:923.73,flow:306.40},{m:'Jun',camp:0,flow:643.28,part:true}];
+function revChart(id,W,H){
+  const svgEl=document.getElementById(id);if(!svgEl)return;
+  const pad=36,bw=44,max=1300,gap=(W-pad*2-bw*months.length)/(months.length-1);
+  const y=v=>H-26-(v/max)*(H-50);
+  let g='';for(let i=0;i<=4;i++){const gy=24+i*((H-50)/4);g+=`<line x1="${pad}" y1="${gy}" x2="${W-8}" y2="${gy}" stroke="rgba(255,255,255,.06)"/>`;}
+  let bars='';
+  months.forEach((mo,i)=>{
+    const x=pad+i*(bw+gap);const tot=mo.camp+mo.flow;
+    const ch=(mo.camp/max)*(H-50), fh=(mo.flow/max)*(H-50);
+    if(mo.camp>0)bars+=`<rect x="${x}" y="${y(mo.camp)}" width="${bw}" height="${ch}" rx="4" fill="#39C2E0"/>`;
+    if(mo.flow>0)bars+=`<rect x="${x}" y="${y(tot)}" width="${bw}" height="${fh}" rx="4" fill="#8B8CF0"/>`;
+    if(tot>0)bars+=`<text x="${x+bw/2}" y="${y(tot)-7}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#EEF1F6">$${Math.round(tot)}</text>`;
+    else bars+=`<text x="${x+bw/2}" y="${H-32}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#5E6675">$0</text>`;
+    bars+=`<text x="${x+bw/2}" y="${H-9}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#929AAA">${mo.m}${mo.part?'*':''}</text>`;
+  });
+  svgEl.innerHTML=g+bars;
+}
+revChart('revChart',520,220);revChart('revChart2',520,240);
+/* donut */
+(function(){const el=document.getElementById('donut');const camp=68.8;const r=44,c=2*Math.PI*r,cx=60,cy=60;
+ const campLen=c*camp/100;
+ el.innerHTML=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#8B8CF0" stroke-width="14"/>
+ <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#39C2E0" stroke-width="14" stroke-dasharray="${campLen} ${c-campLen}" stroke-dashoffset="${c*0.25}" transform="rotate(-90 ${cx} ${cy})" stroke-linecap="round"/>
+ <text x="${cx}" y="${cy-2}" text-anchor="middle" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#EEF1F6">69%</text>
+ <text x="${cx}" y="${cy+13}" text-anchor="middle" font-family="Space Grotesk" font-size="7.5" fill="#929AAA">campaigns</text>`;
+})();
+
+/* ============ LEADERBOARD ============ */
+const sent=[
+ {tag:'Campaign 01',name:'Offset Stripe — Petal Pink, Cabernet Burgundy, Moss Green',date:'24 May',recip:137,open:71.53,click:10.22,rev:386.50},
+ {tag:'26-05-04-US',name:'US Mother’s Day Launch',date:'4 May',recip:218,open:59.17,click:3.21,rev:361.89},
+ {tag:'Campaign 06',name:'Two Tone (B Side) — Lilac, Studio Navy',date:'31 May',recip:123,open:64.23,click:4.88,rev:175.34},
+ {tag:'26-05-04-CA',name:'CA Mother’s Day Launch',date:'4 May',recip:64,open:73.44,click:6.25,rev:0.00},
+ {tag:'Jan 23',name:'Sales Reps update',date:'24 Jan',recip:34,open:79.07,click:0.00,rev:0.00}
+];
+document.getElementById('leaderBody').innerHTML=sent.map(s=>`<tr>
+ <td class="nm">${s.name}<small>${s.tag}</small></td>
+ <td class="num">${s.date}</td>
+ <td class="mvalue">${s.recip}</td>
+ <td><span class="mvalue">${s.open.toFixed(1)}%</span><div class="mini"><i style="width:${Math.min(100,s.open/80*100)}%"></i></div></td>
+ <td><span class="mvalue">${s.click.toFixed(1)}%</span><div class="mini"><i style="width:${Math.min(100,s.click/12*100)}%"></i></div></td>
+ <td class="mvalue" style="color:${s.rev>0?'var(--good)':'var(--dim)'}">$${s.rev.toFixed(2)}</td>
+</tr>`).join('');
+
+/* ============ SCHEDULE ============ */
+const campaigns=[
+ {n:'02',col:'Offset Stripe',name:'Studio Navy, Lilac, Workshop White',aud:'CA + US Subscribers',date:'8 Jun',day:'Mon',today:true},
+ {n:'03',col:'Offset Stripe',name:'Studio Navy, Moss Green, Workshop White',aud:'Engaged 180d · CA',date:'10 Jun',day:'Wed'},
+ {n:'04',col:'Two Tone (B Side)',name:'Multi-color',aud:'Engaged 180d · CA',date:'12 Jun',day:'Fri'},
+ {n:'05',col:'Two Tone (B Side)',name:'Ceramic Clay, Moss Green',aud:'Engaged 180d · CA',date:'14 Jun',day:'Sun'},
+ {n:'07',col:'Polka Dot',name:'Moss Green, Ceramic Clay',aud:'Engaged 180d · CA',date:'16 Jun',day:'Tue'},
+ {n:'08',col:'Polka Dot',name:'Ceramic Clay, Workshop White',aud:'Engaged 180d · CA',date:'18 Jun',day:'Thu'},
+ {n:'09',col:'Indecisive Spectrum',name:'Multi-color',aud:'CA Subs · Never Engaged · No Purchase',date:'20 Jun',day:'Sat'},
+ {n:'10',col:'Wild',name:'Zebra',aud:'CA Subs · Never Engaged · Engaged 60d',date:'22 Jun',day:'Mon'},
+ {n:'11',col:'Wild',name:'Leopard',aud:'Engaged 180d · CA',date:'24 Jun',day:'Wed'},
+ {n:'12',col:'Wild',name:'Camouflage',aud:'Engaged 180d · CA',date:'26 Jun',day:'Fri'},
+ {n:'13',col:'Classic',name:'Petal Pink',aud:'Engaged 180d · CA',date:'28 Jun',day:'Sun'},
+ {n:'14',col:'Classic',name:'Cabernet Burgundy',aud:'Engaged 180d · CA',date:'30 Jun',day:'Tue'},
+ {n:'15',col:'Classic',name:'Sky Gray',aud:'Engaged 180d · CA',date:'2 Jul',day:'Thu'},
+ {n:'16',col:'Classic',name:'Sunday Blue',aud:'Engaged 180d · CA',date:'4 Jul',day:'Sat'},
+ {n:'17',col:'Classic',name:'Workshop White',aud:'Engaged 180d · CA',date:'6 Jul',day:'Mon'},
+ {n:'18',col:'Classic',name:'Moss Green',aud:'Engaged 30–60d · US',date:'8 Jul',day:'Wed'},
+ {n:'19',col:'Classic',name:'Studio Navy',aud:'Engaged 180d · CA',date:'10 Jul',day:'Fri'},
+ {n:'20',col:'Classic',name:'Ceramic Clay',aud:'Engaged 180d · CA',date:'12 Jul',day:'Sun'}
+];
+document.getElementById('schedBody').innerHTML=campaigns.map((c,i)=>`<tr class="${c.today?'today':''}">
+ <td class="num">${String(i+1).padStart(2,'0')}</td>
+ <td class="mvalue">${c.date}<br><span class="num">${c.day}</span></td>
+ <td class="nm">Campaign ${c.n}<small>${c.name}</small></td>
+ <td><span class="tag">${c.col}</span></td>
+ <td style="color:var(--muted);font-size:.76rem">${c.aud}</td>
+ <td><span class="pill ${c.today?'now':'sched'}">${c.today?'Send today':'Scheduled'}</span></td>
+</tr>`).join('');
+
+/* ============ CREATIVE LOOP ============ */
+const cloop=[['01','Watch','Hook rate, hold, cost per result — by concept'],['02','Distil','One or two clear learnings: keep, drop, try'],['03','Brief','A tight brief per concept to the team'],['04','Make','Variants, one deliberate lever at a time'],['05','Test','Ship, scale winners, document losers']];
+document.getElementById('creativeLoop').innerHTML=cloop.map((c,i)=>`<div class="fnode"><div class="ni"><span style="font-family:var(--mono);font-size:.6rem;color:var(--acc);font-weight:700">${c[0]}</span></div><div class="nt">${c[1]}</div><div class="nd">${c[2]}</div></div>${i<cloop.length-1?'<div class="fconn"></div>':''}`).join('');
+
+/* ============ FLOWS TABLE ============ */
+const flows=[
+ ['Welcome','Signup, no purchase','Earn the signup, tell the story, first nudge','Email → SMS'],
+ ['Browse abandon','Viewed, didn’t add','Bring the product back with proof','Email'],
+ ['Cart & checkout','Began checkout','Recover the order, answer objections','Email + SMS'],
+ ['Post-purchase','Order placed','Set expectations, care, build trust','Email + SMS'],
+ ['Complete-the-set','Bought a single','Cross-sell to finish the bathroom','Email'],
+ ['Win-back','Lapsed / dormant','Re-engage with a colour or gifting angle','Email + SMS'],
+ ['Back-in-stock','Waitlist / restock','Notify the warm list first on drops','Email + SMS']
+];
+document.getElementById('flowBody').innerHTML=flows.map(f=>`<tr><td class="nm">${f[0]}</td><td style="color:var(--muted);font-size:.78rem">${f[1]}</td><td style="color:var(--muted);font-size:.78rem">${f[2]}</td><td><span class="tag flow">${f[3]}</span></td></tr>`).join('');
+
+/* ============ TIMELINE ============ */
+const weeks=[
+ {w:'W1',dt:'8–14 Jun',k:0,kn:'Diagnose',f:'Audit everything in one focused sprint',t:'Accounts accessed · full audit · baselines set'},
+ {w:'W2',dt:'15–21 Jun',k:1,kn:'Build',f:'Fix leaks, stand up reporting',t:'Contribution reporting · leaks fixed · listings'},
+ {w:'W3',dt:'22–28 Jun',k:1,kn:'Build',f:'Owned + creative foundations',t:'Email/SMS rebuild · creative testing agreed'},
+ {w:'W4',dt:'29 Jun–5 Jul',k:1,kn:'Build',f:'First tests live',t:'Meta + Amazon batches · top CRO tests'},
+ {w:'W5',dt:'6–12 Jul',k:3,kn:'Analyze',f:'Analyze & adjust — start of month 2',t:'Month-1 read · reallocate · re-plan'},
+ {w:'W6',dt:'13–19 Jul',k:1,kn:'Build',f:'Scale early winners',t:'Flows + segments live · calendar running'},
+ {w:'W7',dt:'20–26 Jul',k:1,kn:'Build',f:'Widen the channels',t:'Non-brand Google + TikTok · bundle tests'},
+ {w:'W8',dt:'27 Jul–2 Aug',k:1,kn:'Build',f:'Deepen what works',t:'2nd creative batch · flows tuned'},
+ {w:'W9',dt:'3–9 Aug',k:3,kn:'Analyze',f:'Analyze & adjust — start of month 3',t:'Month-2 read · reallocate on payback'},
+ {w:'W10',dt:'10–16 Aug',k:2,kn:'Scale',f:'Fund winners, set pacing',t:'Budget to best CM · guardrails set'},
+ {w:'W11',dt:'17–23 Aug',k:2,kn:'Scale',f:'Monthly reporting + cohorts',t:'Automated monthly flow · payback view'},
+ {w:'W12',dt:'24–30 Aug',k:2,kn:'Scale',f:'Write the launch playbook',t:'Repeatable launch documented'},
+ {w:'W13',dt:'31 Aug–6 Sep',k:2,kn:'Scale',f:'90-day readout + next quarter',t:'Results · next plan + budget ask'}
+];
+(function(){
+ const bands=[['Month 1 · Diagnose + Build',4],['Month 2 · Adjust + Build',4],['Month 3 · Adjust + Scale',5]];
+ const bandsH=bands.map(b=>`<div class="tl-band" style="flex:${b[1]}">${b[0]}</div>`).join('');
+ const wkH=weeks.map(w=>`<div class="tl-wk k${w.k}"><div class="w">${w.w}</div><div class="dt">${w.dt}</div><div class="f">${w.f}</div></div>`).join('');
+ document.getElementById('tlWrap').innerHTML=`<div class="tl-in"><div class="tl-bands">${bandsH}</div><div class="tl-weeks">${wkH}</div></div>`;
+})();
+const phases=[['all','Full quarter'],['0','Diagnose'],['1','Build'],['3','Analyze'],['2','Scale']];
+document.getElementById('pfRow').innerHTML=phases.map((p,i)=>`<button class="pf ${i===0?'on':''}" data-p="${p[0]}">${p[1]}</button>`).join('');
+function renderWeeks(f){
+ document.getElementById('weeksBody').innerHTML=weeks.map(w=>{
+  const hide=(f!=='all'&&String(w.k)!==f)?'hide':'';
+  return `<tr class="${hide}"><td class="mvalue">${w.w}</td><td class="num">${w.dt}</td><td><span class="kdot k${w.k}b"></span>${w.kn}</td><td style="font-size:.82rem">${w.f}</td><td style="color:var(--acc);font-size:.76rem">${w.t}</td></tr>`;
+ }).join('');
 }
 renderWeeks('all');
-/* timeline bar */
-function renderGantt(){
-  const bands=[{n:'Month 1 · Diagnose + Build',w:4},{n:'Month 2 · Adjust + Build',w:4},{n:'Month 3 · Adjust + Scale',w:5}];
-  const bandsHtml=bands.map((b,i)=>`<div class="tl-band tlm${i}" style="flex:${b.w}">${b.n}</div>`).join('');
-  const wkHtml=weeks.map(w=>`<div class="tl-wk tlp${w.ph}"><div class="twk">${w.w.replace('Week ','W')}</div><div class="tdt">${w.dt}</div><div class="tfocus">${w.focus}</div></div>`).join('');
-  document.getElementById('ganttWrap').innerHTML=`<div class="tl"><div class="tl-inner"><div class="tl-bands">${bandsHtml}</div><div class="tl-weeks">${wkHtml}</div></div></div>`;
-}
-renderGantt();
-document.querySelectorAll('#phasebar .pbtn').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#phasebar .pbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderWeeks(b.dataset.p);
-}));
+document.querySelectorAll('#pfRow .pf').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#pfRow .pf').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderWeeks(b.dataset.p);}));
 
-/* funnel matrix */
-function renderMatrix(){
-  document.getElementById('matrixBody').innerHTML=chanOrder.map(ch=>`
-    <tr><td class="rowh">${ch}<span>${chanSub[ch]}</span></td>${stageOrder.map(st=>{
-      const c=matrix[ch][st];
-      return `<td class="cell" data-ch="${ch}" data-st="${st}"><div class="ch">${c.ch}</div><div class="cs">${c.cs}</div></td>`;
-    }).join('')}</tr>`).join('');
-  document.querySelectorAll('.cell').forEach(c=>c.addEventListener('click',()=>{
-    document.querySelectorAll('.cell').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');
-    cellDetail(c.dataset.ch,c.dataset.st);
-  }));
+/* ============ FUNNEL MATRIX ============ */
+const chans=['Meta','Google','Amazon'];const chsub={Meta:'Demand + social',Google:'Search + Shopping',Amazon:'Marketplace + DSP'};
+const stages=['prospecting','retargeting','conversion'];
+const matrix={
+ Meta:{prospecting:{ch:'Build demand at the top',cs:'Broad + lookalikes, stretch demo',d:{h:'Meta · Prospecting',a:'Lead with the stretch demo and founder story. The product doing something surprising stops the scroll, and Meta puts it in front of people who weren’t looking.',au:['Broad — let the algorithm find buyers','Lookalikes from purchasers / high-LTV','Design, home & gifting interest tests'],me:['CPM & cost per result','Hook rate','New-visitor sessions','Branded search lift']}},
+  retargeting:{ch:'Recover the interested',cs:'Segmented by depth, proof + sets',d:{h:'Meta · Retargeting',a:'Most people need a second touch on a considered purchase. Match the message to how far they got, with proof and sets for the hesitant.',au:['Viewed product','Added to cart','Engaged, didn’t visit'],me:['Retargeting ROAS','Add-to-cart rate','Frequency']}},
+  conversion:{ch:'Close & keep',cs:'Dynamic product, suppression',d:{h:'Meta · Conversion',a:'Dynamic product ads for the warmest segments; suppress recent buyers. Feed buyers into lookalike seeds and the owned channels.',au:['Checkout started','Recent buyers (suppressed)','Purchasers as seed'],me:['CAC','Contribution / order','AOV','Cross-sell rate']}}},
+ Google:{prospecting:{ch:'Catch early intent',cs:'Non-brand, Shopping, Demand Gen',d:{h:'Google · Prospecting',a:'Capture people typing the category before they know us; Shopping & Demand Gen show the product against generic results.',au:['Non-brand category terms','Shopping / PMax','Demand Gen reach'],me:['Non-brand impression share','CPA','CTR','New sessions']}},
+  retargeting:{ch:'Stay in view',cs:'RLSA, display retargeting',d:{h:'Google · Retargeting',a:'Keep the brand in front of visitors who didn’t buy and bid harder when a past visitor returns.',au:['Site visitors by depth','Cart abandoners','Past searchers (RLSA)'],me:['Retargeting ROAS','Assisted conversions','View-through']}},
+  conversion:{ch:'Defend & convert',cs:'Branded search, full coverage',d:{h:'Google · Conversion',a:'Cover the brand name completely — PR and social send people searching, and that converts cheaply.',au:['Brand-term searchers','High-intent product','Shopping / PMax'],me:['Brand impression share','CVR','CAC','ROAS']}}},
+ Amazon:{prospecting:{ch:'Win the search nobody owns',cs:'Sponsored Products & Brands',d:{h:'Amazon · Prospecting',a:'A lot of towel buying starts on Amazon, where the category is commodity. Sponsored ads show up with an actual brand.',au:['Category & generic keywords','Competitor targeting','In-market audiences'],me:['ACOS / TACOS','Share of voice','Organic rank','New-to-brand']}},
+  retargeting:{ch:'Follow viewers',cs:'Amazon DSP when volume allows',d:{h:'Amazon · Retargeting',a:'Once volume justifies it, DSP retargets viewers on and off Amazon. Until then, win the search first.',au:['Detail-page viewers','Add-to-cart','Category viewers'],me:['DSP ROAS','View-to-purchase','New-to-brand %']}},
+  conversion:{ch:'Convert & defend the listing',cs:'Listing quality + brand defense',d:{h:'Amazon · Conversion',a:'Ad spend only converts if the listing does — images, A+, reviews come first. Defend the brand term.',au:['Brand-term searchers','Listing visitors','Brand store traffic'],me:['Listing CVR','Brand-term ACOS','Review velocity']}}}
+};
+function renderMtx(){
+ document.getElementById('mtxBody').innerHTML=chans.map(ch=>`<tr><td class="rh">${ch}<span>${chsub[ch]}</span></td>${stages.map(st=>{const c=matrix[ch][st];return `<td class="cell" data-ch="${ch}" data-st="${st}"><div class="ct">${c.ch}</div><div class="cs">${c.cs}</div></td>`;}).join('')}</tr>`).join('');
+ document.querySelectorAll('.cell').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.cell').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');cellD(c.dataset.ch,c.dataset.st);}));
 }
-function cellDetail(ch,st){
-  const d=matrix[ch][st].det;
-  document.getElementById('cellDetail').innerHTML=`
-    <div class="celldetail"><div class="cd-tag">${d.head}</div><h3>${matrix[ch][st].ch}</h3>
-    <p style="font-family:var(--grotesk);font-size:.9rem;color:#3a3833;line-height:1.7;max-width:78ch;margin-bottom:18px">${d.angle}</p>
-    <div class="cd-grid">
-      <div><h4>Audiences</h4><ul>${d.audiences.map(x=>`<li>${x}</li>`).join('')}</ul>
-        <h4 style="margin-top:16px">Creative angle</h4><ul>${d.creative.map(x=>`<li>${x}</li>`).join('')}</ul></div>
-      <div><h4>What I'd measure</h4><div class="pillrow">${d.measure.map(x=>`<span class="pill o">${x}</span>`).join('')}</div></div>
-    </div></div>`;
+function cellD(ch,st){const c=matrix[ch][st],d=c.d;
+ document.getElementById('cellDetail').innerHTML=`<div class="celld"><div class="tg">${d.h}</div><h4>${c.ch}</h4><p>${d.a}</p><div class="cols"><div><h6>Audiences</h6><ul>${d.au.map(x=>`<li>${x}</li>`).join('')}</ul></div><div><h6>What I’d measure</h6><div class="pillrow">${d.me.map(x=>`<span class="tag">${x}</span>`).join('')}</div></div></div></div>`;
 }
-renderMatrix();cellDetail('Meta','prospecting');document.querySelector('.cell').classList.add('sel');
+renderMtx();cellD('Meta','prospecting');document.querySelector('.cell').classList.add('sel');
 
-/* CRO */
-let croSort='ice',croDir=-1;
-function renderCro(){
-  const f=document.querySelector('#croFilters button.active').dataset.f;
-  let rows=[...cro];
-  rows.sort((a,b)=>{let x=a[croSort],y=b[croSort];if(typeof x==='string'){return croDir*x.localeCompare(y);}return croDir*(x-y);});
-  document.getElementById('croBody').innerHTML=rows.map(r=>{
-    const hide=(f!=='all'&&r.surface!==f)?'hide':'';
-    return `<tr class="${hide}"><td><span class="surf">${r.surface}</span></td><td>${r.hyp}</td><td>${r.metric}</td><td class="ice">${r.ice.toFixed(1)}</td></tr>`;
-  }).join('');
-}
-renderCro();
-document.querySelectorAll('#croFilters button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#croFilters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderCro();
-}));
-document.querySelectorAll('#croTable th').forEach(th=>th.addEventListener('click',()=>{
-  const s=th.dataset.sort;if(s===croSort)croDir*=-1;else{croSort=s;croDir=(s==='ice')?-1:1;}renderCro();
-}));
-
-/* BUDGET */
-const scenarios={cons:{cac:46,roas:.85},base:{cac:40,roas:1},agg:{cac:34,roas:1.15}};
-let scen='base';
-const CPM=14,AOV=82,GM=0.62;
-const baseROAS=2.8;
-const chanShares=[['Meta',.30],['Google',.16],['Amazon',.20],['TikTok',.10],['Klaviyo / Postscript',.08],['Influencer / affiliate',.08],['Retargeting display',.08]];
+/* ============ BUDGET ============ */
+const scenarios={cons:{cac:46,r:.85},base:{cac:40,r:1},agg:{cac:34,r:1.15}};let scen='base';
+const CPM=14,AOV=82,GM=.62,baseR=2.8;
+const chShares=[['Meta',.30],['Google',.16],['Amazon',.20],['TikTok',.10],['Klaviyo / SMS',.08],['Influencer',.08],['Retargeting',.08]];
 function fmt(n){return n>=1000?'$'+(n/1000).toFixed(n>=10000?0:1)+'K':'$'+Math.round(n)}
 function fmtN(n){return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'K':Math.round(n).toString()}
 function recalc(){
-  const total=Math.max(0,+document.getElementById('totBudget').value||0);
-  const raw=[...document.querySelectorAll('.bs')].map(s=>+s.value),sum=raw.reduce((a,b)=>a+b,0)||1;
-  const pct=raw.map(r=>r/sum),dol=pct.map(p=>p*total);
-  pct.forEach((p,i)=>{document.getElementById('d'+i).textContent=fmt(dol[i]);document.getElementById('p'+i).textContent=Math.round(p*100)+'%';});
-  const sc=scenarios[scen];
-  const cac=sc.cac, roas=baseROAS*sc.roas;
-  const reach=(dol[0]/CPM)*1000, acq=dol[0]+dol[1]+dol[2], cust=acq/cac, rev=cust*AOV, mer=total>0?rev/total*sc.roas:0;
-  const contrib=cust*(AOV*GM)-total;
-  document.getElementById('oReach').textContent=fmtN(reach);
-  document.getElementById('oNew').textContent=fmtN(cust);
-  document.getElementById('oRev').textContent=fmt(rev);
-  document.getElementById('oMer').textContent=mer.toFixed(1)+'x';
-  document.getElementById('oCac').textContent='$'+Math.round(cac);
-  document.getElementById('oContrib').textContent=fmt(contrib);
-  // channel split
-  document.getElementById('channelSplit').innerHTML=chanShares.map(([n,s])=>{
-    const amt=total*s;return `<div class="csrow"><div class="cn">${n}</div><div class="track"><i style="width:${s*100*1.6}%"></i></div><div class="amt">${fmt(amt)} · ${Math.round(s*100)}%</div></div>`;
-  }).join('');
+ const total=Math.max(0,+document.getElementById('totBudget').value||0);
+ const raw=[...document.querySelectorAll('.bs')].map(s=>+s.value),sum=raw.reduce((a,b)=>a+b,0)||1;
+ const pct=raw.map(r=>r/sum),dol=pct.map(p=>p*total);
+ pct.forEach((p,i)=>{document.getElementById('d'+i).textContent=fmt(dol[i]);document.getElementById('p'+i).textContent=Math.round(p*100)+'%';});
+ const sc=scenarios[scen];const cac=sc.cac;
+ const reach=(dol[0]/CPM)*1000,acq=dol[0]+dol[1]+dol[2],cust=acq/cac,rev=cust*AOV,roas=total>0?rev/total*sc.r:0,contrib=cust*(AOV*GM)-total;
+ document.getElementById('oReach').textContent=fmtN(reach);document.getElementById('oNew').textContent=fmtN(cust);
+ document.getElementById('oRev').textContent=fmt(rev);document.getElementById('oRoas').textContent=roas.toFixed(1)+'x';
+ document.getElementById('oCac').textContent='$'+Math.round(cac);document.getElementById('oContrib').textContent=fmt(contrib);
+ document.getElementById('chSplit').innerHTML=chShares.map(([n,s])=>`<div class="csrow"><div class="cn">${n}</div><div class="track"><i style="width:${s*100*1.6}%"></i></div><div class="amt">${fmt(total*s)} · ${Math.round(s*100)}%</div></div>`).join('');
 }
 document.querySelectorAll('.bs').forEach(s=>s.addEventListener('input',recalc));
 document.getElementById('totBudget').addEventListener('input',recalc);
-document.querySelectorAll('#scenario button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#scenario button').forEach(x=>x.classList.remove('active'));b.classList.add('active');scen=b.dataset.s;recalc();
-}));
-
-/* pacing chart */
+document.querySelectorAll('#scen button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#scen button').forEach(x=>x.classList.remove('on'));b.classList.add('on');scen=b.dataset.s;recalc();}));
 function drawPace(){
-  const svg=document.getElementById('paceSvg');const W=720,H=240,pad=34;
-  const days=30, today=18;
-  const total=Math.max(0,+document.getElementById('totBudget').value||0);
-  const x=d=>pad+(d/days)*(W-pad*2), y=v=>H-pad-(v/total)*(H-pad*2);
-  // ideal line
-  const ideal=`M ${x(0)} ${y(0)} L ${x(days)} ${y(total)}`;
-  // actual: slightly behind then catching - sample
-  let actual='M '+x(0)+' '+y(0);
-  const pts=[0,0.02,0.05,0.07,0.10,0.13,0.17,0.20,0.24,0.27,0.31,0.36,0.40,0.45,0.50,0.55,0.59];
-  pts.forEach((f,i)=>{actual+=` L ${x(i)} ${y(total*f)}`;});
-  const todayVal=total*pts[pts.length-1];
-  const projected=todayVal/today*days;
-  let grid='';for(let i=0;i<=4;i++){const gy=pad+i*((H-pad*2)/4);grid+=`<line x1="${pad}" y1="${gy}" x2="${W-pad}" y2="${gy}" stroke="rgba(16,15,13,.08)"/>`;}
-  svg.innerHTML=`
-    ${grid}
-    <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="#100F0D"/>
-    <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#100F0D"/>
-    <path d="${ideal}" stroke="#6E6A61" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
-    <path d="${actual}" stroke="#F0531E" stroke-width="2.5" fill="none"/>
-    <line x1="${x(today)}" y1="${pad}" x2="${x(today)}" y2="${H-pad}" stroke="#2F5E8C" stroke-dasharray="3 3"/>
-    <circle cx="${x(today)}" cy="${y(todayVal)}" r="4" fill="#2F5E8C"/>
-    <text x="${pad-6}" y="${y(total)+4}" text-anchor="end" font-family="Hanken Grotesk" font-size="9" fill="#6E6A61">${fmt(total)}</text>
-    <text x="${pad-6}" y="${H-pad+4}" text-anchor="end" font-family="Hanken Grotesk" font-size="9" fill="#6E6A61">$0</text>
-    <text x="${pad}" y="${H-pad+16}" font-family="Hanken Grotesk" font-size="9" fill="#6E6A61">Day 1</text>
-    <text x="${W-pad}" y="${H-pad+16}" text-anchor="end" font-family="Hanken Grotesk" font-size="9" fill="#6E6A61">Day 30</text>`;
-  document.getElementById('paceNote').innerHTML=`At day ${today} we've spent <b>${fmt(todayVal)}</b> of <b>${fmt(total)}</b>. At this rate the month lands around <b>${fmt(projected)}</b>, a little under plan, so I'd lean spend into the channels paying back best to catch up rather than spreading it thin. This is the view the weekly automation would surface on its own.`;
+ const el=document.getElementById('paceSvg'),W=520,H=200,pad=30,days=30,today=18;
+ const total=Math.max(0,+document.getElementById('totBudget').value||0);
+ const x=d=>pad+(d/days)*(W-pad*2),y=v=>H-24-(total>0?(v/total):0)*(H-44);
+ const pts=[0,.02,.05,.07,.10,.13,.17,.20,.24,.27,.31,.36,.40,.45,.50,.55,.59];
+ let actual='M '+x(0)+' '+y(0);pts.forEach((f,i)=>actual+=` L ${x(i)} ${y(total*f)}`);
+ const todayVal=total*pts[pts.length-1],proj=todayVal/today*days;
+ let g='';for(let i=0;i<=4;i++){const gy=20+i*((H-44)/4);g+=`<line x1="${pad}" y1="${gy}" x2="${W-8}" y2="${gy}" stroke="rgba(255,255,255,.06)"/>`;}
+ el.innerHTML=g+`<path d="M ${x(0)} ${y(0)} L ${x(days)} ${y(total)}" stroke="#5E6675" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+  <path d="${actual}" stroke="#5FE3DA" stroke-width="2.5" fill="none"/>
+  <line x1="${x(today)}" y1="16" x2="${x(today)}" y2="${H-24}" stroke="#39C2E0" stroke-dasharray="3 3"/>
+  <circle cx="${x(today)}" cy="${y(todayVal)}" r="4" fill="#39C2E0"/>
+  <text x="${pad}" y="${H-8}" font-family="JetBrains Mono" font-size="9" fill="#929AAA">Day 1</text>
+  <text x="${W-8}" y="${H-8}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#929AAA">Day 30</text>`;
+ document.getElementById('paceNote').innerHTML=`At day ${today} we’ve spent <b>${fmt(todayVal)}</b> of <b>${fmt(total)}</b>. At this rate the month lands near <b>${fmt(proj)}</b> — I’d lean spend into the best-paying channels to catch up.`;
 }
 
-/* reporting flows */
-let flowKind='weekly';
-function renderFlow(){
-  const f=flows[flowKind];
-  document.getElementById('flowInner').innerHTML=f.cols.map((col,i)=>{
-    const nodes=col.map(n=>`<div class="node ${n.c}"><div class="ni">${n.i}</div><div class="nt">${n.t}</div><div class="nd">${n.d}</div></div>`).join('');
-    const conn=(i<f.cols.length-1)?`<div class="fconn"></div>`:'';
-    return `<div class="fcol">${nodes}</div>${conn}`;
-  }).join('');
-  document.getElementById('flowCap').textContent=f.cap;
+/* ============ REPORTING FLOW ============ */
+const repFlows={
+ weekly:{cols:[
+  [['T','Schedule','Every Mon 6:00 PT']],
+  [['M','Meta Ads','Spend, ROAS'],['G','Google Ads','Spend, CPA'],['A','Amazon Ads','ACOS'],['S','Shopify','Orders, AOV']],
+  [['+','Merge','All sources']],[['ƒ','Compute','Blended ROAS, CAC, pace']],[['?','Thresholds','Flag drift']],
+  [['#','Slack','#growth summary'],['▤','Dashboard','Weekly refresh']]
+ ],cap:'The weekly flow runs every Monday morning — pulls spend and results from each platform plus Shopify orders, blends them, checks for cost or pacing drift, and posts a Slack summary while refreshing the dashboard. The week starts with decisions, not data-pulling.'},
+ monthly:{cols:[
+  [['T','Schedule','1st of month']],
+  [['M','Ad platforms','Meta · Google · Amazon'],['S','Shopify','Cohorts'],['K','Klaviyo','Owned revenue'],['4','GA4','Attribution']],
+  [['+','Merge','Full month']],[['ƒ','Compute','CM, LTV, payback']],[['▦','Cohorts','By acq. month']],
+  [['▤','Dashboard','Monthly view'],['✉','Email','To founders']]
+ ],cap:'The monthly flow goes deeper — adds owned revenue and GA4, builds cohorts by acquisition month, and works out contribution margin, LTV and payback. It answers whether we’re building something profitable, not just busy.'}
+};
+function renderRep(kind){
+ const f=repFlows[kind];
+ document.getElementById('repFlow').innerHTML=f.cols.map((col,i)=>`<div class="fcol">${col.map(n=>`<div class="fnode"><div class="ni"><span style="font-family:var(--mono);font-size:.6rem;color:var(--acc);font-weight:700">${n[0]}</span></div><div class="nt">${n[1]}</div><div class="nd">${n[2]}</div></div>`).join('')}</div>${i<f.cols.length-1?'<div class="fconn"></div>':''}`).join('');
+ document.getElementById('repCap').textContent=f.cap;
 }
-renderFlow();
-document.querySelectorAll('#flowToggle button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('#flowToggle button').forEach(x=>x.classList.remove('active'));b.classList.add('active');flowKind=b.dataset.fl;renderFlow();
-}));
+renderRep('weekly');
+document.querySelectorAll('#flowToggle button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#flowToggle button').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderRep(b.dataset.f);}));
 
-/* mock charts */
-function drawMock(){
-  const trend=document.getElementById('mockTrend');
-  const rev=[18,22,26,24,31,35,38,44],spend=[8,9,10,11,11,12,12,13];
-  const W=380,H=160,pad=24,max=48;
-  const x=i=>pad+i*((W-pad*2)/(rev.length-1)),y=v=>H-pad-(v/max)*(H-pad*2);
-  let rPath='M '+x(0)+' '+y(rev[0]),sPath='M '+x(0)+' '+y(spend[0]);
-  rev.forEach((v,i)=>{if(i)rPath+=` L ${x(i)} ${y(v)}`;});
-  spend.forEach((v,i)=>{if(i)sPath+=` L ${x(i)} ${y(v)}`;});
-  let area=rPath+` L ${x(rev.length-1)} ${H-pad} L ${x(0)} ${H-pad} Z`;
-  trend.innerHTML=`<path d="${area}" fill="rgba(240,83,30,.1)"/><path d="${rPath}" stroke="#F0531E" stroke-width="2" fill="none"/><path d="${sPath}" stroke="#6E6A61" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
-    <text x="${x(0)}" y="${H-8}" font-family="Hanken Grotesk" font-size="8" fill="#6E6A61">W1</text>
-    <text x="${x(rev.length-1)}" y="${H-8}" text-anchor="end" font-family="Hanken Grotesk" font-size="8" fill="#6E6A61">W8</text>`;
-  const bars=document.getElementById('mockBars');
-  const data=[['Meta',38],['Amazon',24],['Google',20],['Email',12],['TikTok',6]];
-  const bmax=40,bw=34,gap=12,bx=10;
-  bars.innerHTML=data.map((d,i)=>{
-    const h=(d[1]/bmax)*110,X=bx+i*(bw+gap);
-    return `<rect x="${X}" y="${150-h}" width="${bw}" height="${h}" fill="${i===0?'#F0531E':'#100F0D'}"/>
-    <text x="${X+bw/2}" y="${148}" text-anchor="middle" font-family="Hanken Grotesk" font-size="7.5" fill="#6E6A61" transform="rotate(0)">${d[0]}</text>
-    <text x="${X+bw/2}" y="${145-h}" text-anchor="middle" font-family="Hanken Grotesk" font-size="8" font-weight="700" fill="#100F0D">${d[1]}%</text>`;
-  }).join('');
-}
-
-/* project plan */
+/* ============ PROJECTS ============ */
 const projWeeks=[
- {n:"Week 1",dt:"8–14 Jun · live now",ph:0,theme:"Week 1 execution — Klaviyo, flows, handovers",rows:[
-   ["Klaviyo","Audit + email calendar: review and schedule all existing emails in Klaviyo (30+ already prepared). Send calendar live — one campaign every other day from 8 Jun."],
-   ["Flows","Abandoned-cart optimisation and flow enhancements."],
-   ["Social","Planable setup + social content loading: organise, upload and schedule existing content."],
-   ["Meta","Meta account handover with Keelan."],
-   ["Amazon","Amazon handover / briefing — start getting all the info Optivations needs together."]
- ],fb:"End of week: send calendar running, abandoned-cart improved, handovers underway."},
- {n:"Week 2",dt:"8–14 Jun",ph:1,theme:"Build — fix leaks, stand up reporting",rows:[
-   ["Channels","Full audit of each platform: what's working, what's wasted, what's missing. Amazon listing quality reviewed in detail."],
-   ["Measurement","Map how revenue is currently attributed and where the tracking is unreliable."],
-   ["CRO","Walk the funnel as a customer, on desktop and mobile, and log every point of friction."]
- ],fb:"Weekly: first pacing check, even on rough numbers, to set the habit."},
- {n:"Week 3",dt:"15–21 Jun",ph:1,theme:"Build — owned + creative foundations",rows:[
-   ["Reporting","Stand up contribution-margin reporting and agree the baseline with finance and the founders."],
-   ["Channels","Cover branded search on Google if it isn't already. Cheap, fast, high-intent."],
-   ["Owned","Audit the existing Klaviyo / Postscript setup and list what's missing."]
- ],fb:"Weekly review with founders begins, on the new baseline."},
- {n:"Week 4",dt:"22–28 Jun",ph:1,theme:"Build — first tests live",rows:[
-   ["Quick wins","Ship the cart and checkout fixes, start the Amazon listing improvements."],
-   ["Readout","Deliver the State-of-Digital: baseline, what's working, what's broken, the biggest opportunities and risks."],
-   ["Planning","Draft the build-phase plan and the test budget ask."]
- ],fb:"Milestone: founders aligned on the baseline and the next 60 days."},
- {n:"Week 5",dt:"29 Jun–5 Jul",ph:3,theme:"Analyze & adjust, then keep building",rows:[
-   ["Reporting","Build the automated weekly reporting flow and dashboard v1. Pacing and alerts start arriving automatically."],
-   ["Creative","Agree the creative testing framework and a fast briefing lane with the team."]
- ],fb:"Weekly cadence now runs off the automated dashboard."},
- {n:"Week 6",dt:"6–12 Jul",ph:1,theme:"Owned channels earning",rows:[
-   ["Owned","Rebuild welcome, browse, cart, checkout, and post-purchase flows in Klaviyo / Postscript."],
-   ["Channels","Prep the first structured paid test batches across Meta and Amazon."]
- ],fb:"Weekly: first read on flow revenue coming through."},
- {n:"Week 7",dt:"13–19 Jul",ph:1,theme:"First real tests live",rows:[
-   ["Creative","First Meta and Amazon test batches live, one variable at a time."],
-   ["CRO","Launch the top-scored landing-page and PDP tests."]
- ],fb:"Creative feedback loop with the team starts, weekly."},
- {n:"Week 8",dt:"20–26 Jul",ph:1,theme:"Widen the tests",rows:[
-   ["Channels","Non-brand Google and TikTok tests live."],
-   ["CRO","Bundle / build-your-set test running on the PDP and cart."]
- ],fb:"Mid-build check-in with founders on early signals."},
- {n:"Weeks 9–10",dt:"27 Jul–9 Aug",ph:2,theme:"Read, reallocate, scale",rows:[
-   ["Channels","First clear read on winners. Start moving budget toward contribution margin, scale the best creative and channels, set pacing rules."],
-   ["CRO","Roll out winning tests, queue the next batch."]
- ],fb:"Weekly reallocation decisions off the dashboard."},
- {n:"Weeks 11–12",dt:"10–23 Aug",ph:2,theme:"Deepen reporting, write it down",rows:[
-   ["Reporting","Automated monthly flow live: contribution, LTV, payback, cohorts."],
-   ["Playbook","Document the repeatable launch process and start building the next-drop list."]
- ],fb:"First monthly cohort + payback review with founders."},
- {n:"Week 13",dt:"24–31 Aug",ph:2,theme:"Readout and what's next",rows:[
-   ["Readout","90-day results, proven unit economics, and the 6–12 month plan with a budget ask."],
-   ["Team","Recommendation on what to hire and what to outsource as things scale."]
- ],fb:"Quarter close: agree the next phase and budget."}
+ {n:'Week 1',dt:'8–14 Jun · live',th:'Klaviyo, flows & handovers',rows:[
+   ['Klaviyo','Audit + email calendar: review and schedule all existing emails in Klaviyo (30+ prepared). Send calendar live — one every other day from 8 Jun.'],
+   ['Flows','Abandoned-cart optimisation and flow enhancements.'],
+   ['Social','Planable setup + social content loading: organise, upload and schedule existing content.'],
+   ['Meta','Meta account handover with Keelan.'],
+   ['Amazon','Amazon handover / briefing — get the info Optivations needs together.']
+ ],fb:'Send calendar running, abandoned-cart improved, handovers underway.'},
+ {n:'Week 2',dt:'15–21 Jun',th:'Fix leaks, stand up reporting',rows:[
+   ['Reporting','Stand up contribution-margin reporting; agree the baseline.'],
+   ['CRO','Walk the funnel, ship cart and brand-search fixes.'],
+   ['Amazon','Listing quality pass with Optivations.']
+ ],fb:'Trustworthy numbers; first quick wins live.'},
+ {n:'Week 3',dt:'22–28 Jun',th:'Owned + creative foundations',rows:[
+   ['Owned','Rebuild welcome, browse, cart, post-purchase flows + core segments.'],
+   ['Creative','Agree the testing framework and a fast briefing lane.']
+ ],fb:'Flow revenue climbing; creative loop started.'},
+ {n:'Week 4',dt:'29 Jun–5 Jul',th:'First tests live',rows:[
+   ['Channels','First Meta + Amazon test batches, one variable at a time.'],
+   ['CRO','Launch top-scored landing-page and PDP tests.']
+ ],fb:'Clean reads coming in on the first batch.'},
+ {n:'Week 5',dt:'6–12 Jul',th:'Analyze & adjust → keep building',rows:[
+   ['Review','Month-1 read; reallocate budget on contribution margin.'],
+   ['Plan','Set the month-2 build plan before continuing.']
+ ],fb:'Month 2 starts from evidence, not guesses.'}
 ];
-document.getElementById('projectList').innerHTML=projWeeks.map((w,i)=>{
-  const phn=['Diagnose','Build','Scale','Analyze & adjust'][w.ph];
-  return `<div class="pweek ${i===0?'open':''}" data-i="${i}">
-    <div class="pw-head"><span class="wnum">${w.n}</span><span class="wdate">${w.dt}</span><span class="wtheme">${w.theme}</span><span class="wph ph${w.ph}">${phn}</span><span class="pl">+</span></div>
-    <div class="pw-body"><div class="pw-in">
-      ${w.rows.map(r=>`<div class="ws-row"><span class="ws-tag">${r[0]}</span><p>${r[1]}</p></div>`).join('')}
-      <div class="pw-fb">Feedback loop — ${w.fb}</div>
-    </div></div></div>`;
-}).join('');
-document.querySelectorAll('#projectList .pweek').forEach(el=>el.querySelector('.pw-head').addEventListener('click',()=>el.classList.toggle('open')));
+document.getElementById('projList').innerHTML=projWeeks.map((w,i)=>`<div class="pw ${i===0?'open':''}"><div class="pwh"><span class="wn">${w.n}</span><span class="wd">${w.dt}</span><span class="wt">${w.th}</span><span class="pl">+</span></div><div class="pwb"><div class="pwin">${w.rows.map(r=>`<div class="wsrow"><span class="wstag">${r[0]}</span><p>${r[1]}</p></div>`).join('')}<div class="pwfb">Feedback loop — ${w.fb}</div></div></div></div>`).join('');
+document.querySelectorAll('#projList .pw').forEach(el=>el.querySelector('.pwh').addEventListener('click',()=>el.classList.toggle('open')));
 
-/* email send schedule — every other day from Mon 8 Jun 2026, drafts only */
-const campaigns=[
- {n:"02",col:"Offset Stripe",name:"Studio Navy, Lilac, Workshop White",aud:"CA + US Subscribers",date:"8 Jun",day:"Mon",today:true},
- {n:"03",col:"Offset Stripe",name:"Studio Navy, Moss Green, Workshop White",aud:"Engaged 180d · CA",date:"10 Jun",day:"Wed"},
- {n:"04",col:"Two Tone (B Side)",name:"Multi-color",aud:"Engaged 180d · CA",date:"12 Jun",day:"Fri"},
- {n:"05",col:"Two Tone (B Side)",name:"Ceramic Clay, Moss Green",aud:"Engaged 180d · CA",date:"14 Jun",day:"Sun"},
- {n:"07",col:"Polka Dot",name:"Moss Green, Ceramic Clay",aud:"Engaged 180d · CA",date:"16 Jun",day:"Tue"},
- {n:"08",col:"Polka Dot",name:"Ceramic Clay, Workshop White",aud:"Engaged 180d · CA",date:"18 Jun",day:"Thu"},
- {n:"09",col:"Indecisive Spectrum",name:"Multi-color",aud:"CA Subs · Never Engaged · No Purchase",date:"20 Jun",day:"Sat"},
- {n:"10",col:"Wild",name:"Zebra",aud:"CA Subs · Never Engaged · Engaged 60d",date:"22 Jun",day:"Mon"},
- {n:"11",col:"Wild",name:"Leopard",aud:"Engaged 180d · CA",date:"24 Jun",day:"Wed"},
- {n:"12",col:"Wild",name:"Camouflage",aud:"Engaged 180d · CA",date:"26 Jun",day:"Fri"},
- {n:"13",col:"Classic",name:"Petal Pink",aud:"Engaged 180d · CA",date:"28 Jun",day:"Sun"},
- {n:"14",col:"Classic",name:"Cabernet Burgundy",aud:"Engaged 180d · CA",date:"30 Jun",day:"Tue"},
- {n:"15",col:"Classic",name:"Sky Gray",aud:"Engaged 180d · CA",date:"2 Jul",day:"Thu"},
- {n:"16",col:"Classic",name:"Sunday Blue",aud:"Engaged 180d · CA",date:"4 Jul",day:"Sat"},
- {n:"17",col:"Classic",name:"Workshop White",aud:"Engaged 180d · CA",date:"6 Jul",day:"Mon"},
- {n:"18",col:"Classic",name:"Moss Green",aud:"Engaged 30–60d · US",date:"8 Jul",day:"Wed"},
- {n:"19",col:"Classic",name:"Studio Navy",aud:"Engaged 180d · CA",date:"10 Jul",day:"Fri"},
- {n:"20",col:"Classic",name:"Ceramic Clay",aud:"Engaged 180d · CA",date:"12 Jul",day:"Sun"}
+/* ============ EXTRAS ============ */
+const extras=[
+ [I.creative,'TikTok Ads','Where the product shows off','The stretch stops a scroll, and TikTok rewards native creator video. Start with Spark Ads on top organic, keep budget modest, pull winners into the wider mix. Doubles as a hook-testing lab for Meta.'],
+ ['<path d="M16 11a4 4 0 1 0-8 0M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>','Influencer & affiliate','Seed, whitelist, pay on performance','Send product to people whose taste fits, whitelist the performers into paid from their handle, and run affiliate codes so spend follows results.'],
+ ['<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>','Email & SMS','The fastest payback','Capture is strong, flows were thin — now rebuilt. Welcome, abandonment, post-purchase, win-back, and early-access for the next drop carry retention.'],
+ [I.perf,'SEO fundamentals','Quiet, compounding','On Shopify: indexation and category content for non-brand search. On Amazon: titles, bullets, A+ and backend keywords. Won’t pay off this quarter — exactly why to start now.']
 ];
-document.getElementById('schedBody').innerHTML=campaigns.map((c,i)=>`
-  <tr class="${c.today?'today':''}">
-    <td class="num">${String(i+1).padStart(2,'0')}</td>
-    <td class="sd">${c.date}<span class="dy">${c.day}</span></td>
-    <td class="cmp">Campaign ${c.n}<span>${c.name}</span></td>
-    <td><span class="coltag">${c.col}</span></td>
-    <td class="aud">${c.aud}</td>
-    <td><span class="stp ${c.today?'now':''}">${c.today?'Send today':'Scheduled'}</span></td>
-  </tr>`).join('');
+document.getElementById('extras').innerHTML=extras.map(e=>`<div class="glass ex"><div class="ei">${svg(e[0])}</div><div class="et">${e[1]}</div><h4>${e[2]}</h4><p>${e[3]}</p></div>`).join('');
 
 /* init */
-counters();
+counters('#ovStats');seen.ov=1;
 </script>
 </body>
 </html>
